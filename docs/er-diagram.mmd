@@ -1,0 +1,58 @@
+erDiagram
+    Users ||--o{ Tickets : "creates (CreatedById)"
+    Users |o--o{ Tickets : "works on (AssigneeId)"
+    Users ||--o{ Comments : writes
+    Users ||--o{ TicketLogs : "makes change"
+    Categories ||--o{ Tickets : classifies
+    Priorities ||--o{ Tickets : "sets deadline"
+    Tickets ||--o{ Comments : has
+    Tickets ||--o{ TicketLogs : "is logged in"
+
+    Users {
+        int Id PK
+        string Email UK
+        string DisplayName
+        string PasswordHash
+        string Role "User, Support, Admin, Service"
+        datetime CreatedAt
+    }
+    Categories {
+        int Id PK
+        string Name UK
+    }
+    Priorities {
+        int Id PK
+        string Name UK
+        int Level UK
+        int DeadlineHours
+    }
+    Tickets {
+        int Id PK
+        string Title
+        string Description
+        string Status "New, InProgress, Resolved"
+        int CategoryId FK
+        int PriorityId FK
+        int CreatedById FK
+        int AssigneeId FK "optional"
+        datetime CreatedAt
+        datetime Deadline
+        datetime ResolvedAt "optional"
+        bool IsOverdue
+    }
+    Comments {
+        int Id PK
+        int TicketId FK
+        int AuthorId FK
+        string Text
+        datetime CreatedAt
+    }
+    TicketLogs {
+        int Id PK
+        int TicketId FK
+        int UserId FK
+        string Action
+        string OldValue "optional"
+        string NewValue "optional"
+        datetime CreatedAt
+    }
