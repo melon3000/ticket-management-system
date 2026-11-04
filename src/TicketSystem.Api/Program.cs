@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TicketSystem.Api.Data;
+using TicketSystem.Api.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,11 @@ builder.Services.AddControllers();
 // SQLite database. Only the API talks to it.
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Layers: controllers -> services -> repositories -> database.
+builder.Services.AddRepositories();
+builder.Services.AddApplicationServices();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
