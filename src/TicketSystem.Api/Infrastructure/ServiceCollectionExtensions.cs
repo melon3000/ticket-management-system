@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Identity;
+using TicketSystem.Api.Auth;
+using TicketSystem.Api.Data.Entities;
 using TicketSystem.Api.Repositories;
 using TicketSystem.Api.Services;
 
@@ -23,6 +26,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<ILookupService, LookupService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddSingleton<IJwtTokenService, JwtTokenService>();
+        services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
         return services;
     }
 }
