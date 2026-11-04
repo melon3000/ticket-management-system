@@ -15,6 +15,14 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// Create or update the database and add the starting data on the first start.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+    SeedData.Initialize(db);
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
