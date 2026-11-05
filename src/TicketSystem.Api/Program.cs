@@ -53,8 +53,17 @@ builder.Services
     });
 builder.Services.AddAuthorizationPolicies();
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// CORS: only the React client origins from configuration may call the API from a browser.
+const string CorsPolicyName = "ReactClient";
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+builder.Services.AddCors(options =>
+    options.AddPolicy(CorsPolicyName, policy => policy
+        .WithOrigins(allowedOrigins)
+        .AllowAnyHeader()
+        .AllowAnyMethod()));
+
+// Swagger / OpenAPI documentation with the Authorize button.
+builder.Services.AddSwaggerDocumentation();
 
 var app = builder.Build();
 
@@ -69,10 +78,15 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwaggerDocumentation();
+}
+else
+{
+    // In development the API runs over plain http, so there is no https port to redirect to.
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
+app.UseCors(CorsPolicyName);
 
 app.UseAuthentication();
 app.UseAuthorization();
