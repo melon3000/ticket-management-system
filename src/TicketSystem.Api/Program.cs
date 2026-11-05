@@ -53,6 +53,10 @@ builder.Services
     });
 builder.Services.AddAuthorizationPolicies();
 
+// Errors are returned as ProblemDetails (RFC 9457) by one global handler.
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 // CORS: only the React client origins from configuration may call the API from a browser.
 const string CorsPolicyName = "ReactClient";
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
@@ -76,6 +80,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+app.UseExceptionHandler();   // unhandled exceptions -> ProblemDetails
+app.UseStatusCodePages();    // empty 401/403/404 responses -> ProblemDetails
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerDocumentation();
