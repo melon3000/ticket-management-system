@@ -37,4 +37,5 @@ public record UserDto(int Id, string Email, string DisplayName, UserRole Role);
 /// <summary>Result of a successful registration or login.</summary>
 /// <param name="Token">JWT to send as "Authorization: Bearer &lt;token&gt;".</param>
 /// <param name="ExpiresAt">When the token stops working (UTC).</param>
+/// <param name="User">The signed-in user.</param>
 public record AuthResponse(string Token, DateTime ExpiresAt, UserDto User);
