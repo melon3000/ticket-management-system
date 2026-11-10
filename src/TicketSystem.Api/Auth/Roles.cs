@@ -7,4 +7,6 @@ public static class Roles
     public const string TicketAuthors = "User,Support,Admin";
 
     public const string Admin = "Admin";
+
+    public const string Support = "Support";
 }

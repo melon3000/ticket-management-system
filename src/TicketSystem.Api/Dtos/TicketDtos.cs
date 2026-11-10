@@ -57,3 +57,20 @@ public record TicketDto(
     DateTime Deadline,
     DateTime? ResolvedAt,
     bool IsOverdue);
+
+/// <summary>The new state of a ticket. A ticket changes from InProgress to Resolved or back; New is set by the system.</summary>
+public class ChangeStatusRequest
+{
+    /// <example>Resolved</example>
+    [Required, EnumDataType(typeof(TicketStatus))]
+    public TicketStatus? Status { get; set; }
+}
+
+/// <summary>One entry of the change log of a ticket.</summary>
+/// <param name="Id">Log entry id.</param>
+/// <param name="Action">Created, Assigned, StatusChanged or Escalated.</param>
+/// <param name="OldValue">Value before the change, or null when there was none.</param>
+/// <param name="NewValue">Value after the change.</param>
+/// <param name="User">Who made the change.</param>
+/// <param name="CreatedAt">When the change was made (UTC).</param>
+public record TicketLogDto(int Id, string Action, string? OldValue, string? NewValue, UserSummaryDto User, DateTime CreatedAt);

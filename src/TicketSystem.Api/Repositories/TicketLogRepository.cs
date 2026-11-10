@@ -10,7 +10,7 @@ public class TicketLogRepository(AppDbContext db) : ITicketLogRepository
         db.TicketLogs.AsNoTracking()
             .Include(l => l.User)
             .Where(l => l.TicketId == ticketId)
-            .OrderBy(l => l.CreatedAt)
+            .OrderBy(l => l.CreatedAt).ThenBy(l => l.Id)
             .ToListAsync();
 
     public async Task AddAsync(TicketLog log) => await db.TicketLogs.AddAsync(log);

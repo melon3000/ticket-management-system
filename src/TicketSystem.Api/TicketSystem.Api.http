@@ -56,3 +56,20 @@ Authorization: Bearer {{token}}
 ### List tickets: search, sort by deadline (soonest first) and page
 GET {{host}}/api/tickets?search=printer&sortBy=Deadline&descending=false&page=1&pageSize=10
 Authorization: Bearer {{token}}
+
+### Take a ticket into work (log in as a support person, for example mari.maasikas@ticketsystem.local)
+POST {{host}}/api/tickets/1/assign
+Authorization: Bearer {{token}}
+
+### Change the state of a ticket (assignee or administrator)
+PATCH {{host}}/api/tickets/1/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "Resolved"
+}
+
+### Change log of a ticket
+GET {{host}}/api/tickets/1/log
+Authorization: Bearer {{token}}

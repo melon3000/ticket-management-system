@@ -114,6 +114,83 @@ public class TicketService(
         return ticket.ToDto();
     }
 
+    public async Task<TicketDto> AssignAsync(int id, int userId)
+    {
+        var ticket = await GetExistingAsync(id);
+        if (ticket.Status != TicketStatus.New || ticket.AssigneeId is not null)
+        {
+            throw new ConflictException(ticket.Status == TicketStatus.Resolved
+                ? "A resolved ticket cannot be taken into work."
+                : "The ticket has already been taken into work.");
+        }
+
+        var supporter = await users.GetByIdAsync(userId)
+                        ?? throw new ForbiddenException("The signed-in user no longer exists.");
+        var now = clock.GetUtcNow().UtcDateTime;
+
+        ticket.Assignee = supporter;
+        ticket.Status = TicketStatus.InProgress;
+        await logs.AddAsync(new TicketLog
+        {
+            Ticket = ticket, UserId = userId, Action = TicketLogActions.Assigned,
+            NewValue = supporter.DisplayName, CreatedAt = now
+        });
+        await logs.AddAsync(new TicketLog
+        {
+            Ticket = ticket, UserId = userId, Action = TicketLogActions.StatusChanged,
+            OldValue = nameof(TicketStatus.New), NewValue = nameof(TicketStatus.InProgress), CreatedAt = now
+        });
+        await unitOfWork.SaveChangesAsync();
+
+        logger.LogInformation("Ticket {TicketId} taken into work by user {UserId}", id, userId);
+        return ticket.ToDto();
+    }
+
+    public async Task<TicketDto> ChangeStatusAsync(int id, TicketStatus status, int userId, UserRole role)
+    {
+        var ticket = await GetExistingAsync(id);
+        if (role != UserRole.Admin && ticket.AssigneeId != userId)
+        {
+            throw new ForbiddenException("Only the assigned support person or an administrator can change the status.");
+        }
+
+        var allowed = (ticket.Status, status) is
+            (TicketStatus.InProgress, TicketStatus.Resolved) or (TicketStatus.Resolved, TicketStatus.InProgress);
+        if (!allowed)
+        {
+            throw new ConflictException(ticket.Status == TicketStatus.New
+                ? "A new ticket must be taken into work first."
+                : $"A ticket cannot change from {ticket.Status} to {status}.");
+        }
+
+        var now = clock.GetUtcNow().UtcDateTime;
+        var oldStatus = ticket.Status;
+        ticket.Status = status;
+        ticket.ResolvedAt = status == TicketStatus.Resolved ? now : null;
+        await logs.AddAsync(new TicketLog
+        {
+            Ticket = ticket, UserId = userId, Action = TicketLogActions.StatusChanged,
+            OldValue = oldStatus.ToString(), NewValue = status.ToString(), CreatedAt = now
+        });
+        await unitOfWork.SaveChangesAsync();
+
+        logger.LogInformation("Ticket {TicketId} changed from {OldStatus} to {NewStatus} by user {UserId}",
+            id, oldStatus, status, userId);
+        return ticket.ToDto();
+    }
+
+    public async Task<List<TicketLogDto>> GetLogAsync(int id, int userId, UserRole role)
+    {
+        var ticket = await GetExistingAsync(id);
+        if (role == UserRole.User && ticket.CreatedById != userId)
+        {
+            throw new ForbiddenException("You can only view the log of your own tickets.");
+        }
+
+        var entries = await logs.GetByTicketIdAsync(id);
+        return entries.Select(l => l.ToDto()).ToList();
+    }
+
     public async Task DeleteAsync(int id)
     {
         var ticket = await GetExistingAsync(id);

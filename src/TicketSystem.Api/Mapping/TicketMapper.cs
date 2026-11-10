@@ -21,5 +21,9 @@ public static class TicketMapper
         ticket.ResolvedAt,
         ticket.IsOverdue);
 
+    /// <summary>Converts a log entry whose user is loaded.</summary>
+    public static TicketLogDto ToDto(this TicketLog log) =>
+        new(log.Id, log.Action, log.OldValue, log.NewValue, log.User.ToSummary(), log.CreatedAt);
+
     public static UserSummaryDto ToSummary(this User user) => new(user.Id, user.DisplayName);
 }
