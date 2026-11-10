@@ -48,3 +48,11 @@ Content-Type: application/json
 ### Get a ticket
 GET {{host}}/api/tickets/1
 Authorization: Bearer {{token}}
+
+### List tickets: filter by state, priority and assignee
+GET {{host}}/api/tickets?status=New&priority=3&assignee=
+Authorization: Bearer {{token}}
+
+### List tickets: search, sort by deadline (soonest first) and page
+GET {{host}}/api/tickets?search=printer&sortBy=Deadline&descending=false&page=1&pageSize=10
+Authorization: Bearer {{token}}

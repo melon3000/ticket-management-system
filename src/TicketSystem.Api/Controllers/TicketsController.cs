@@ -27,6 +27,18 @@ public class TicketsController(ITicketService ticketService) : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, ticket);
     }
 
+    /// <summary>
+    /// Returns a page of tickets. Filter by status, priority, assignee and category, search the title and
+    /// description, and sort. Ordinary users only see their own tickets.
+    /// </summary>
+    /// <response code="200">One page of tickets with the total number of matches.</response>
+    /// <response code="400">A filter, the sorting or the paging is not valid.</response>
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResult<TicketDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> List([FromQuery] TicketQuery query) =>
+        Ok(await ticketService.ListAsync(query, CurrentUserId(), CurrentRole()));
+
     /// <summary>Returns one ticket. Ordinary users can only see their own tickets.</summary>
     /// <response code="403">An ordinary user asked for someone else's ticket.</response>
     /// <response code="404">The ticket does not exist.</response>
