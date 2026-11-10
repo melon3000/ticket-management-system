@@ -63,6 +63,49 @@ public class TicketsController(ITicketService ticketService) : ControllerBase
     public async Task<IActionResult> Update(int id, UpdateTicketRequest request) =>
         Ok(await ticketService.UpdateAsync(id, request, CurrentUserId(), CurrentRole()));
 
+    /// <summary>
+    /// Takes a new ticket into work (support staff only). The caller becomes the assignee and the ticket
+    /// becomes InProgress.
+    /// </summary>
+    /// <response code="404">The ticket does not exist.</response>
+    /// <response code="409">The ticket is not new or somebody has already taken it.</response>
+    [HttpPost("{id:int}/assign")]
+    [Authorize(Roles = Roles.Support)]
+    [ProducesResponseType(typeof(TicketDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Assign(int id) =>
+        Ok(await ticketService.AssignAsync(id, CurrentUserId()));
+
+    /// <summary>
+    /// Changes the state of a ticket: InProgress to Resolved, or Resolved back to InProgress.
+    /// Only the assignee or an administrator may do it. The change is written to the log.
+    /// </summary>
+    /// <response code="400">The state is missing or is not one of the known states.</response>
+    /// <response code="403">The caller is neither the assignee nor an administrator.</response>
+    /// <response code="404">The ticket does not exist.</response>
+    /// <response code="409">The ticket cannot change to this state from its current one.</response>
+    [HttpPatch("{id:int}/status")]
+    [Authorize(Policy = Policies.SupportOrAdmin)]
+    [ProducesResponseType(typeof(TicketDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ChangeStatus(int id, ChangeStatusRequest request) =>
+        Ok(await ticketService.ChangeStatusAsync(id, request.Status!.Value, CurrentUserId(), CurrentRole()));
+
+    /// <summary>Returns the change log of a ticket: who changed what and when. Ordinary users can only see their own tickets.</summary>
+    /// <response code="403">An ordinary user asked for the log of someone else's ticket.</response>
+    /// <response code="404">The ticket does not exist.</response>
+    [HttpGet("{id:int}/log")]
+    [ProducesResponseType(typeof(List<TicketLogDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetLog(int id) =>
+        Ok(await ticketService.GetLogAsync(id, CurrentUserId(), CurrentRole()));
+
     /// <summary>Deletes a ticket with its comments and log. Administrators only.</summary>
     /// <response code="204">The ticket was deleted.</response>
     /// <response code="404">The ticket does not exist.</response>

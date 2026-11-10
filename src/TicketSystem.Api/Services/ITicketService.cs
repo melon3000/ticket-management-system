@@ -26,6 +26,21 @@ public interface ITicketService
     /// </summary>
     Task<TicketDto> UpdateAsync(int id, UpdateTicketRequest request, int userId, UserRole role);
 
+    /// <summary>
+    /// A support person takes a new ticket into work: they become the assignee and the ticket becomes InProgress.
+    /// Writes "Assigned" and "StatusChanged" entries to the change log.
+    /// </summary>
+    Task<TicketDto> AssignAsync(int id, int userId);
+
+    /// <summary>
+    /// Changes the state: InProgress to Resolved (sets the resolution time) or Resolved back to InProgress.
+    /// Only the assignee or an administrator may do it. Writes a "StatusChanged" entry to the change log.
+    /// </summary>
+    Task<TicketDto> ChangeStatusAsync(int id, TicketStatus status, int userId, UserRole role);
+
+    /// <summary>Returns the change log of a ticket, oldest first. Ordinary users can only see their own tickets.</summary>
+    Task<List<TicketLogDto>> GetLogAsync(int id, int userId, UserRole role);
+
     /// <summary>Deletes a ticket together with its comments and log.</summary>
     Task DeleteAsync(int id);
 }
