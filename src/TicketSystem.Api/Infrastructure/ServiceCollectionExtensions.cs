@@ -27,6 +27,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ILookupService, LookupService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITicketService, TicketService>();
+        services.AddSingleton(TimeProvider.System);
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
         return services;

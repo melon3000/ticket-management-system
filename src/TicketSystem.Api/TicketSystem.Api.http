@@ -32,3 +32,19 @@ Content-Type: application/json
 @token = {{login.response.body.$.token}}
 GET {{host}}/api/auth/me
 Authorization: Bearer {{token}}
+
+### Create a ticket (needs the token from the login request above)
+POST {{host}}/api/tickets
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Printer ei tööta",
+  "description": "Kolmanda korruse printer ei prindi ja näitab veateadet E-502.",
+  "categoryId": 1,
+  "priorityId": 2
+}
+
+### Get a ticket
+GET {{host}}/api/tickets/1
+Authorization: Bearer {{token}}
