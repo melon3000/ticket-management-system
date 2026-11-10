@@ -11,6 +11,12 @@ public interface ITicketService
     /// </summary>
     Task<TicketDto> CreateAsync(CreateTicketRequest request, int userId);
 
+    /// <summary>
+    /// Returns one page of tickets with the filters, search and sorting of the query.
+    /// Ordinary users only get their own tickets, support staff and administrators get all of them.
+    /// </summary>
+    Task<PagedResult<TicketDto>> ListAsync(TicketQuery query, int userId, UserRole role);
+
     /// <summary>Returns a ticket. Ordinary users can only see their own tickets.</summary>
     Task<TicketDto> GetAsync(int id, int userId, UserRole role);
 

@@ -54,6 +54,17 @@ public class TicketService(
         return ticket.ToDto();
     }
 
+    public async Task<PagedResult<TicketDto>> ListAsync(TicketQuery query, int userId, UserRole role)
+    {
+        var filter = new TicketFilter(
+            query.Status, query.Priority, query.Assignee, query.CategoryId, query.Search,
+            role == UserRole.User ? userId : null,
+            query.SortBy, query.Descending, query.Page, query.PageSize);
+
+        var (items, totalCount) = await tickets.SearchAsync(filter);
+        return new PagedResult<TicketDto>(items.Select(t => t.ToDto()).ToList(), query.Page, query.PageSize, totalCount);
+    }
+
     public async Task<TicketDto> GetAsync(int id, int userId, UserRole role)
     {
         var ticket = await GetExistingAsync(id);
