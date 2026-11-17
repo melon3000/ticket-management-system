@@ -29,6 +29,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<ICommentService, CommentService>();
+        services.AddScoped<IStatisticsService, StatisticsService>();
         services.AddSingleton(TimeProvider.System);
         services.AddSingleton<WebSocketConnections>();
         services.AddSingleton<ITicketNotifier, TicketNotifier>();
