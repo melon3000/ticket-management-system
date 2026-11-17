@@ -86,3 +86,11 @@ Content-Type: application/json
 ### Comments of a ticket
 GET {{host}}/api/tickets/1/comments
 Authorization: Bearer {{token}}
+
+### Overdue tickets (log in as service@ticketsystem.local, support or administrator)
+GET {{host}}/api/tickets/overdue
+Authorization: Bearer {{token}}
+
+### Escalate a late ticket (service account only)
+PATCH {{host}}/api/tickets/1/escalate
+Authorization: Bearer {{token}}

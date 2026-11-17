@@ -39,6 +39,31 @@ public class TicketsController(ITicketService ticketService) : ControllerBase
     public async Task<IActionResult> List([FromQuery] TicketQuery query) =>
         Ok(await ticketService.ListAsync(query, CurrentUserId(), CurrentRole()));
 
+    /// <summary>
+    /// Returns the unresolved tickets that have missed their deadline, the oldest deadline first.
+    /// Used by the Worker Service. Escalated tickets are included, their isOverdue flag is true.
+    /// </summary>
+    [HttpGet("overdue")]
+    [Authorize(Policy = Policies.StaffOrService)]
+    [ProducesResponseType(typeof(List<TicketDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetOverdue() => Ok(await ticketService.GetOverdueAsync());
+
+    /// <summary>
+    /// Marks a late ticket as overdue and raises its priority by one level (Worker Service only).
+    /// The deadline stays as it was. The change is written to the log.
+    /// </summary>
+    /// <response code="404">The ticket does not exist.</response>
+    /// <response code="409">The ticket is resolved, already escalated or not late yet.</response>
+    [HttpPatch("{id:int}/escalate")]
+    [Authorize(Policy = Policies.ServiceOnly)]
+    [ProducesResponseType(typeof(TicketDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Escalate(int id) =>
+        Ok(await ticketService.EscalateAsync(id, CurrentUserId()));
+
     /// <summary>Returns one ticket. Ordinary users can only see their own tickets.</summary>
     /// <response code="403">An ordinary user asked for someone else's ticket.</response>
     /// <response code="404">The ticket does not exist.</response>

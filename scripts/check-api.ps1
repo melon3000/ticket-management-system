@@ -50,6 +50,7 @@ $toomas = Login "toomas.mets@ticketsystem.local"
 $mari = Login "mari.maasikas@ticketsystem.local"
 $jaan = Login "jaan.tamm@ticketsystem.local"
 $admin = Login "admin@ticketsystem.local"
+$service = Login "service@ticketsystem.local"
 
 Write-Host "`n== Creating a ticket ==" -ForegroundColor Cyan
 $new = @{ title = "Smoke test ticket"; description = "Created by the check script."; categoryId = 1; priorityId = 2 }
@@ -131,6 +132,18 @@ Check "author reads the comments: 200" 200 $r.Status
 Check "comments in order" "Kati Kask,Mari Maasikas" (@($r.Body | ForEach-Object { $_.author.displayName }) -join ",")
 Check "other user cannot read the comments: 403" 403 (Call "GET" "/api/tickets/$id/comments" $toomas).Status
 Check "comments of an unknown ticket: 404" 404 (Call "GET" "/api/tickets/999999/comments" $admin).Status
+
+Write-Host "`n== Overdue tickets and escalation ==" -ForegroundColor Cyan
+$r = Call "GET" "/api/tickets/overdue" $service
+Check "service reads the overdue list: 200" 200 $r.Status
+Check "overdue list has no resolved tickets" 0 @($r.Body | Where-Object { $_.status -eq "Resolved" }).Count
+Check "overdue list has only late tickets" 0 @($r.Body | Where-Object { ([datetime]$_.deadline).ToUniversalTime() -ge [datetime]::UtcNow }).Count
+Check "support reads the overdue list: 200" 200 (Call "GET" "/api/tickets/overdue" $mari).Status
+Check "ordinary user cannot read the overdue list: 403" 403 (Call "GET" "/api/tickets/overdue" $kati).Status
+Check "ticket that is not late yet cannot be escalated: 409" 409 (Call "PATCH" "/api/tickets/$id/escalate" $service).Status
+Check "support cannot escalate: 403" 403 (Call "PATCH" "/api/tickets/$id/escalate" $mari).Status
+Check "administrator cannot escalate: 403" 403 (Call "PATCH" "/api/tickets/$id/escalate" $admin).Status
+Check "escalating an unknown ticket: 404" 404 (Call "PATCH" "/api/tickets/999999/escalate" $service).Status
 
 Write-Host "`n== Editing and deleting ==" -ForegroundColor Cyan
 Check "author cannot edit a ticket in work: 403" 403 (Call "PUT" "/api/tickets/$id" $kati $new).Status

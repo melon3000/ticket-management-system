@@ -41,6 +41,19 @@ public interface ITicketService
     /// <summary>Returns the change log of a ticket, oldest first. Ordinary users can only see their own tickets.</summary>
     Task<List<TicketLogDto>> GetLogAsync(int id, int userId, UserRole role);
 
+    /// <summary>
+    /// Returns the unresolved tickets that have missed their deadline, the oldest deadline first.
+    /// Tickets that were already escalated are included, their IsOverdue flag is true.
+    /// </summary>
+    Task<List<TicketDto>> GetOverdueAsync();
+
+    /// <summary>
+    /// Marks a late ticket as overdue and raises its priority by one level. The deadline stays as it was, because
+    /// it was missed. A ticket that already has the highest priority is only marked. Writes an "Escalated" entry
+    /// to the change log. Only unresolved tickets past their deadline that were not escalated before qualify.
+    /// </summary>
+    Task<TicketDto> EscalateAsync(int id, int userId);
+
     /// <summary>Deletes a ticket together with its comments and log.</summary>
     Task DeleteAsync(int id);
 }

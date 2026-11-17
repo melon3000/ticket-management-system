@@ -13,6 +13,12 @@ public interface ITicketRepository
     /// </summary>
     Task<(List<Ticket> Items, int TotalCount)> SearchAsync(TicketFilter filter);
 
+    /// <summary>
+    /// Returns the unresolved tickets whose deadline is before <paramref name="now"/>, the oldest deadline first.
+    /// Tickets that were already escalated are included.
+    /// </summary>
+    Task<List<Ticket>> GetOverdueAsync(DateTime now);
+
     /// <summary>Prepares a new ticket. Call <see cref="IUnitOfWork.SaveChangesAsync"/> to store it.</summary>
     Task AddAsync(Ticket ticket);
 
