@@ -45,6 +45,31 @@ function Login([string]$Email) {
   return $r.Body.token
 }
 
+function Connect-TicketSocket([string]$Token) {
+  $ws = New-Object System.Net.WebSockets.ClientWebSocket
+  $address = ($Base -replace '^http', 'ws') + "/ws/tickets"
+  if ($Token) { $address += "?access_token=$Token" }
+  $cts = New-Object System.Threading.CancellationTokenSource 5000
+  try {
+    $null = $ws.ConnectAsync([Uri]$address, $cts.Token).GetAwaiter().GetResult()
+    return $ws
+  } catch {
+    return $null
+  }
+}
+
+function Receive-TicketMessage($Socket) {
+  $buffer = New-Object byte[] 16384
+  $segment = [System.ArraySegment[byte]]::new($buffer)
+  $cts = New-Object System.Threading.CancellationTokenSource 5000
+  try {
+    $result = $Socket.ReceiveAsync($segment, $cts.Token).GetAwaiter().GetResult()
+    return ([System.Text.Encoding]::UTF8.GetString($buffer, 0, $result.Count) | ConvertFrom-Json)
+  } catch {
+    return $null
+  }
+}
+
 $kati = Login "kati.kask@ticketsystem.local"
 $toomas = Login "toomas.mets@ticketsystem.local"
 $mari = Login "mari.maasikas@ticketsystem.local"
@@ -144,6 +169,22 @@ Check "ticket that is not late yet cannot be escalated: 409" 409 (Call "PATCH" "
 Check "support cannot escalate: 403" 403 (Call "PATCH" "/api/tickets/$id/escalate" $mari).Status
 Check "administrator cannot escalate: 403" 403 (Call "PATCH" "/api/tickets/$id/escalate" $admin).Status
 Check "escalating an unknown ticket: 404" 404 (Call "PATCH" "/api/tickets/999999/escalate" $service).Status
+
+Write-Host "`n== Real-time messages (WebSocket) ==" -ForegroundColor Cyan
+Check "socket without a token is refused" $null (Connect-TicketSocket "")
+Check "ordinary user cannot open the socket" $null (Connect-TicketSocket $kati)
+$socket = Connect-TicketSocket $mari
+Check "support opens the socket" "Open" $socket.State
+$live = (Call "POST" "/api/tickets" $kati $new).Body
+$message = Receive-TicketMessage $socket
+Check "support gets TicketCreated" "TicketCreated" $message.type
+Check "message carries the new ticket" $live.id $message.ticket.id
+Call "POST" "/api/tickets/$($live.id)/assign" $mari | Out-Null
+$message = Receive-TicketMessage $socket
+Check "support gets TicketUpdated after taking it into work" "TicketUpdated" $message.type
+Check "update shows the new status" "InProgress" $message.ticket.status
+if ($socket) { $socket.Dispose() }
+Call "DELETE" "/api/tickets/$($live.id)" $admin | Out-Null
 
 Write-Host "`n== Editing and deleting ==" -ForegroundColor Cyan
 Check "author cannot edit a ticket in work: 403" 403 (Call "PUT" "/api/tickets/$id" $kati $new).Status

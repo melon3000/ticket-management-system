@@ -35,7 +35,7 @@ public class TicketServiceTests
 
         var service = new TicketService(
             new TicketRepository(db), new CategoryRepository(db), new PriorityRepository(db),
-            new UserRepository(db), new TicketLogRepository(db), new UnitOfWork(db),
+            new UserRepository(db), new TicketLogRepository(db), new UnitOfWork(db), new NullTicketNotifier(),
             new FixedClock(), NullLogger<TicketService>.Instance);
         return new Context(connection, db, service);
     }

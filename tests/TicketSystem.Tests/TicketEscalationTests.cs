@@ -41,7 +41,7 @@ public class TicketEscalationTests
         var clock = new TestClock();
         var service = new TicketService(
             new TicketRepository(db), new CategoryRepository(db), new PriorityRepository(db),
-            new UserRepository(db), new TicketLogRepository(db), new UnitOfWork(db),
+            new UserRepository(db), new TicketLogRepository(db), new UnitOfWork(db), new NullTicketNotifier(),
             clock, NullLogger<TicketService>.Instance);
         return new Context(connection, db, service, clock);
     }
