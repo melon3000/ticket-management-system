@@ -50,6 +50,22 @@ builder.Services
             NameClaimType = AuthClaims.Name,
             RoleClaimType = AuthClaims.Role
         };
+
+        // A browser cannot set the Authorization header of a WebSocket, so the WebSocket channel
+        // also accepts the token from the query string: /ws/tickets?access_token=...
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var token = context.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(token) && context.HttpContext.Request.Path.StartsWithSegments(TicketWebSocketExtensions.Path))
+                {
+                    context.Token = token;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 builder.Services.AddAuthorizationPolicies();
 
@@ -94,9 +110,19 @@ else
 
 app.UseCors(CorsPolicyName);
 
+// WebSockets: only the React client origins from configuration may open a connection from a browser.
+var webSocketOptions = new WebSocketOptions { KeepAliveInterval = TimeSpan.FromSeconds(30) };
+foreach (var origin in allowedOrigins)
+{
+    webSocketOptions.AllowedOrigins.Add(origin);
+}
+
+app.UseWebSockets(webSocketOptions);
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapTicketWebSocket();
 
 app.Run();

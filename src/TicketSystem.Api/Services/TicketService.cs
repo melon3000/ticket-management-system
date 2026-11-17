@@ -13,6 +13,7 @@ public class TicketService(
     IUserRepository users,
     ITicketLogRepository logs,
     IUnitOfWork unitOfWork,
+    ITicketNotifier notifier,
     TimeProvider clock,
     ILogger<TicketService> logger) : ITicketService
 {
@@ -51,7 +52,7 @@ public class TicketService(
 
         logger.LogInformation("Ticket {TicketId} created by user {UserId} with priority {Priority}",
             ticket.Id, userId, priority.Name);
-        return ticket.ToDto();
+        return await NotifyAsync(TicketEvents.Created, ticket);
     }
 
     public async Task<PagedResult<TicketDto>> ListAsync(TicketQuery query, int userId, UserRole role)
@@ -111,7 +112,7 @@ public class TicketService(
         await unitOfWork.SaveChangesAsync();
 
         logger.LogInformation("Ticket {TicketId} edited by user {UserId}", id, userId);
-        return ticket.ToDto();
+        return await NotifyAsync(TicketEvents.Updated, ticket);
     }
 
     public async Task<TicketDto> AssignAsync(int id, int userId)
@@ -143,7 +144,7 @@ public class TicketService(
         await unitOfWork.SaveChangesAsync();
 
         logger.LogInformation("Ticket {TicketId} taken into work by user {UserId}", id, userId);
-        return ticket.ToDto();
+        return await NotifyAsync(TicketEvents.Updated, ticket);
     }
 
     public async Task<TicketDto> ChangeStatusAsync(int id, TicketStatus status, int userId, UserRole role)
@@ -176,7 +177,7 @@ public class TicketService(
 
         logger.LogInformation("Ticket {TicketId} changed from {OldStatus} to {NewStatus} by user {UserId}",
             id, oldStatus, status, userId);
-        return ticket.ToDto();
+        return await NotifyAsync(TicketEvents.Updated, ticket);
     }
 
     public async Task<List<TicketLogDto>> GetLogAsync(int id, int userId, UserRole role)
@@ -234,7 +235,7 @@ public class TicketService(
 
         logger.LogInformation("Ticket {TicketId} escalated from {OldPriority} to {NewPriority}",
             id, oldPriority.Name, ticket.Priority.Name);
-        return ticket.ToDto();
+        return await NotifyAsync(TicketEvents.Updated, ticket);
     }
 
     public async Task DeleteAsync(int id)
@@ -243,6 +244,14 @@ public class TicketService(
         tickets.Remove(ticket);
         await unitOfWork.SaveChangesAsync();
         logger.LogInformation("Ticket {TicketId} deleted", id);
+    }
+
+    /// <summary>Converts the saved ticket and tells the listening support staff about it.</summary>
+    private async Task<TicketDto> NotifyAsync(string eventType, Ticket ticket)
+    {
+        var dto = ticket.ToDto();
+        await notifier.NotifyAsync(eventType, dto);
+        return dto;
     }
 
     private async Task<Ticket> GetExistingAsync(int id) =>

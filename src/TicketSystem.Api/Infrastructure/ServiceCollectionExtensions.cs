@@ -30,6 +30,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<WebSocketConnections>();
+        services.AddSingleton<ITicketNotifier, TicketNotifier>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
         return services;

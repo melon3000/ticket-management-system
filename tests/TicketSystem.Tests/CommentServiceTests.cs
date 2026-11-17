@@ -40,7 +40,7 @@ public class CommentServiceTests
         var clock = new FixedClock();
         var ticketService = new TicketService(
             tickets, new CategoryRepository(db), new PriorityRepository(db), users,
-            new TicketLogRepository(db), unitOfWork, clock, NullLogger<TicketService>.Instance);
+            new TicketLogRepository(db), unitOfWork, new NullTicketNotifier(), clock, NullLogger<TicketService>.Instance);
         var commentService = new CommentService(
             tickets, new CommentRepository(db), users, unitOfWork, clock, NullLogger<CommentService>.Instance);
         return new Context(connection, db, ticketService, commentService);
