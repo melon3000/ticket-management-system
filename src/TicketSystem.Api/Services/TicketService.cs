@@ -191,6 +191,52 @@ public class TicketService(
         return entries.Select(l => l.ToDto()).ToList();
     }
 
+    public async Task<List<TicketDto>> GetOverdueAsync()
+    {
+        var overdue = await tickets.GetOverdueAsync(clock.GetUtcNow().UtcDateTime);
+        return overdue.Select(t => t.ToDto()).ToList();
+    }
+
+    public async Task<TicketDto> EscalateAsync(int id, int userId)
+    {
+        var ticket = await GetExistingAsync(id);
+        var now = clock.GetUtcNow().UtcDateTime;
+
+        if (ticket.Status == TicketStatus.Resolved)
+        {
+            throw new ConflictException("A resolved ticket cannot be escalated.");
+        }
+
+        if (ticket.IsOverdue)
+        {
+            throw new ConflictException("The ticket has already been escalated.");
+        }
+
+        if (ticket.Deadline >= now)
+        {
+            throw new ConflictException("The deadline of the ticket has not passed yet.");
+        }
+
+        var oldPriority = ticket.Priority;
+        var higher = await priorities.GetNextHigherAsync(oldPriority.Level);
+        if (higher is not null)
+        {
+            ticket.Priority = higher;
+        }
+
+        ticket.IsOverdue = true;
+        await logs.AddAsync(new TicketLog
+        {
+            Ticket = ticket, UserId = userId, Action = TicketLogActions.Escalated,
+            OldValue = oldPriority.Name, NewValue = ticket.Priority.Name, CreatedAt = now
+        });
+        await unitOfWork.SaveChangesAsync();
+
+        logger.LogInformation("Ticket {TicketId} escalated from {OldPriority} to {NewPriority}",
+            id, oldPriority.Name, ticket.Priority.Name);
+        return ticket.ToDto();
+    }
+
     public async Task DeleteAsync(int id)
     {
         var ticket = await GetExistingAsync(id);

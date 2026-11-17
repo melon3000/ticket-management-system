@@ -67,6 +67,16 @@ public class TicketRepository(AppDbContext db) : ITicketRepository
     private static string EscapeLike(string text) =>
         text.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
 
+    public Task<List<Ticket>> GetOverdueAsync(DateTime now) =>
+        db.Tickets.AsNoTracking()
+            .Where(t => t.Status != TicketStatus.Resolved && t.Deadline < now)
+            .OrderBy(t => t.Deadline).ThenBy(t => t.Id)
+            .Include(t => t.Category)
+            .Include(t => t.Priority)
+            .Include(t => t.CreatedBy)
+            .Include(t => t.Assignee)
+            .ToListAsync();
+
     public async Task AddAsync(Ticket ticket) => await db.Tickets.AddAsync(ticket);
 
     public void Remove(Ticket ticket) => db.Tickets.Remove(ticket);
