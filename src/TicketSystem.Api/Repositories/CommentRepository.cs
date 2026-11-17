@@ -10,7 +10,7 @@ public class CommentRepository(AppDbContext db) : ICommentRepository
         db.Comments.AsNoTracking()
             .Include(c => c.Author)
             .Where(c => c.TicketId == ticketId)
-            .OrderBy(c => c.CreatedAt)
+            .OrderBy(c => c.CreatedAt).ThenBy(c => c.Id)
             .ToListAsync();
 
     public async Task AddAsync(Comment comment) => await db.Comments.AddAsync(comment);

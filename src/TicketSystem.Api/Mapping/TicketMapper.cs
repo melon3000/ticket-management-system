@@ -25,5 +25,9 @@ public static class TicketMapper
     public static TicketLogDto ToDto(this TicketLog log) =>
         new(log.Id, log.Action, log.OldValue, log.NewValue, log.User.ToSummary(), log.CreatedAt);
 
+    /// <summary>Converts a comment whose author is loaded.</summary>
+    public static CommentDto ToDto(this Comment comment) =>
+        new(comment.Id, comment.Text, comment.Author.ToSummary(), comment.CreatedAt);
+
     public static UserSummaryDto ToSummary(this User user) => new(user.Id, user.DisplayName);
 }
