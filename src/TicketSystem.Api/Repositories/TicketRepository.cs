@@ -14,6 +14,13 @@ public class TicketRepository(AppDbContext db) : ITicketRepository
             .Include(t => t.Assignee)
             .FirstOrDefaultAsync(t => t.Id == id);
 
+    public Task<List<ResolvedTicketRow>> GetResolvedAsync() =>
+        db.Tickets
+            .AsNoTracking()
+            .Where(t => t.ResolvedAt != null)
+            .Select(t => new ResolvedTicketRow(t.CategoryId, t.AssigneeId, t.CreatedAt, t.ResolvedAt!.Value))
+            .ToListAsync();
+
     public async Task<(List<Ticket> Items, int TotalCount)> SearchAsync(TicketFilter filter)
     {
         IQueryable<Ticket> query = db.Tickets;

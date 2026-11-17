@@ -186,6 +186,27 @@ Check "update shows the new status" "InProgress" $message.ticket.status
 if ($socket) { $socket.Dispose() }
 Call "DELETE" "/api/tickets/$($live.id)" $admin | Out-Null
 
+Write-Host "`n== Statistics ==" -ForegroundColor Cyan
+Check "statistics without a token: 401" 401 (Call "GET" "/api/statistics/resolution-time").Status
+Check "ordinary user cannot read statistics: 403" 403 (Call "GET" "/api/statistics/resolution-time" $kati).Status
+Check "support cannot read statistics: 403" 403 (Call "GET" "/api/statistics/resolution-time" $mari).Status
+$r = Call "GET" "/api/statistics/resolution-time" $admin
+Check "administrator reads statistics: 200" 200 $r.Status
+$before = $r.Body
+$supportId = ($before.bySupport | Where-Object { $_.name -eq "Mari Maasikas" }).id
+$beforeMari = ($before.bySupport | Where-Object { $_.id -eq $supportId }).resolvedCount
+$beforeCategory = ($before.byCategory | Where-Object { $_.id -eq 1 }).resolvedCount
+Check "every category is listed" (Call "GET" "/api/categories" $admin).Body.Count $before.byCategory.Count
+$stat = (Call "POST" "/api/tickets" $kati $new).Body
+Call "POST" "/api/tickets/$($stat.id)/assign" $mari | Out-Null
+Check "support resolves the ticket: 200" 200 (Call "PATCH" "/api/tickets/$($stat.id)/status" $mari @{ status = "Resolved" }).Status
+$after = (Call "GET" "/api/statistics/resolution-time" $admin).Body
+Check "total resolved count grows by one" ($before.resolvedCount + 1) $after.resolvedCount
+Check "category count grows by one" ($beforeCategory + 1) ($after.byCategory | Where-Object { $_.id -eq 1 }).resolvedCount
+Check "support person count grows by one" ($beforeMari + 1) ($after.bySupport | Where-Object { $_.id -eq $supportId }).resolvedCount
+Check "average time is not negative" $true ($after.averageHours -ge 0)
+Call "DELETE" "/api/tickets/$($stat.id)" $admin | Out-Null
+
 Write-Host "`n== Editing and deleting ==" -ForegroundColor Cyan
 Check "author cannot edit a ticket in work: 403" 403 (Call "PUT" "/api/tickets/$id" $kati $new).Status
 Check "user cannot delete: 403" 403 (Call "DELETE" "/api/tickets/$id" $kati).Status

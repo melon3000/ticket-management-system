@@ -19,6 +19,9 @@ public interface ITicketRepository
     /// </summary>
     Task<List<Ticket>> GetOverdueAsync(DateTime now);
 
+    /// <summary>Returns the creation and resolution time of every ticket that is resolved now.</summary>
+    Task<List<ResolvedTicketRow>> GetResolvedAsync();
+
     /// <summary>Prepares a new ticket. Call <see cref="IUnitOfWork.SaveChangesAsync"/> to store it.</summary>
     Task AddAsync(Ticket ticket);
 
