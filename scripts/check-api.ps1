@@ -117,6 +117,21 @@ Check "log shows who made the first change" "Kati Kask" $r.Body[0].user.displayN
 Check "other user reads the log: 403" 403 (Call "GET" "/api/tickets/$id/log" $toomas).Status
 Check "log of an unknown ticket: 404" 404 (Call "GET" "/api/tickets/999999/log" $admin).Status
 
+Write-Host "`n== Comments ==" -ForegroundColor Cyan
+Check "author comments: 201" 201 (Call "POST" "/api/tickets/$id/comments" $kati @{ text = "Printer ei reageeri ikka." }).Status
+$r = Call "POST" "/api/tickets/$id/comments" $mari @{ text = "  Vaatan seda t66 ajal.  " }
+Check "support comments: 201" 201 $r.Status
+Check "comment text is trimmed" "Vaatan seda t66 ajal." $r.Body.text
+Check "comment shows the author" "Mari Maasikas" $r.Body.author.displayName
+Check "other user cannot comment: 403" 403 (Call "POST" "/api/tickets/$id/comments" $toomas @{ text = "Mina ka." }).Status
+Check "empty comment: 400" 400 (Call "POST" "/api/tickets/$id/comments" $kati @{ text = "" }).Status
+Check "comment on an unknown ticket: 404" 404 (Call "POST" "/api/tickets/999999/comments" $kati @{ text = "Tere." }).Status
+$r = Call "GET" "/api/tickets/$id/comments" $kati
+Check "author reads the comments: 200" 200 $r.Status
+Check "comments in order" "Kati Kask,Mari Maasikas" (@($r.Body | ForEach-Object { $_.author.displayName }) -join ",")
+Check "other user cannot read the comments: 403" 403 (Call "GET" "/api/tickets/$id/comments" $toomas).Status
+Check "comments of an unknown ticket: 404" 404 (Call "GET" "/api/tickets/999999/comments" $admin).Status
+
 Write-Host "`n== Editing and deleting ==" -ForegroundColor Cyan
 Check "author cannot edit a ticket in work: 403" 403 (Call "PUT" "/api/tickets/$id" $kati $new).Status
 Check "user cannot delete: 403" 403 (Call "DELETE" "/api/tickets/$id" $kati).Status

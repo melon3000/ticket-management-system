@@ -73,3 +73,16 @@ Content-Type: application/json
 ### Change log of a ticket
 GET {{host}}/api/tickets/1/log
 Authorization: Bearer {{token}}
+
+### Add a comment to a ticket
+POST {{host}}/api/tickets/1/comments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "text": "Tere! Proovisin printerit taaskäivitada, aga viga jäi."
+}
+
+### Comments of a ticket
+GET {{host}}/api/tickets/1/comments
+Authorization: Bearer {{token}}
