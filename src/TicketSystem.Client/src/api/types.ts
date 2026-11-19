@@ -83,3 +83,18 @@ export interface TicketQuery {
   page: number
   pageSize: number
 }
+
+export interface TicketComment {
+  id: number
+  text: string
+  author: UserSummary
+  createdAt: string
+}
+
+/** Data of a new ticket, also used when a ticket is edited. */
+export interface TicketInput {
+  title: string
+  description: string
+  categoryId: number
+  priorityId: number
+}
