@@ -1,9 +1,13 @@
+using TicketSystem.Api.Data.Entities;
 using TicketSystem.Api.Dtos;
 using TicketSystem.Api.Repositories;
 
 namespace TicketSystem.Api.Services;
 
-public class LookupService(ICategoryRepository categories, IPriorityRepository priorities) : ILookupService
+public class LookupService(
+    ICategoryRepository categories,
+    IPriorityRepository priorities,
+    IUserRepository users) : ILookupService
 {
     public async Task<List<CategoryDto>> GetCategoriesAsync()
     {
@@ -15,5 +19,11 @@ public class LookupService(ICategoryRepository categories, IPriorityRepository p
     {
         var items = await priorities.GetAllAsync();
         return items.Select(p => new PriorityDto(p.Id, p.Name, p.Level, p.DeadlineHours)).ToList();
+    }
+
+    public async Task<List<UserSummaryDto>> GetSupportStaffAsync()
+    {
+        var staff = await users.GetByRoleAsync(UserRole.Support);
+        return staff.Select(u => new UserSummaryDto(u.Id, u.DisplayName)).ToList();
     }
 }

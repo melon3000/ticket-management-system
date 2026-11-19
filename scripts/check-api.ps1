@@ -207,6 +207,15 @@ Check "support person count grows by one" ($beforeMari + 1) ($after.bySupport | 
 Check "average time is not negative" $true ($after.averageHours -ge 0)
 Call "DELETE" "/api/tickets/$($stat.id)" $admin | Out-Null
 
+Write-Host "`n== Support staff list ==" -ForegroundColor Cyan
+Check "staff list without a token: 401" 401 (Call "GET" "/api/users/support").Status
+Check "ordinary user cannot read the staff list: 403" 403 (Call "GET" "/api/users/support" $kati).Status
+$r = Call "GET" "/api/users/support" $mari
+Check "support reads the staff list: 200" 200 $r.Status
+Check "staff list contains the support person" 1 @($r.Body | Where-Object { $_.displayName -eq "Mari Maasikas" }).Count
+Check "staff list has no administrator" 0 @($r.Body | Where-Object { $_.displayName -eq "Peeter Admin" }).Count
+Check "staff list shows no email addresses" 0 @($r.Body | Where-Object { $_.PSObject.Properties.Name -contains "email" }).Count
+
 Write-Host "`n== Editing and deleting ==" -ForegroundColor Cyan
 Check "author cannot edit a ticket in work: 403" 403 (Call "PUT" "/api/tickets/$id" $kati $new).Status
 Check "user cannot delete: 403" 403 (Call "DELETE" "/api/tickets/$id" $kati).Status
