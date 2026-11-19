@@ -16,7 +16,7 @@ public class LookupServiceTests
         var db = new AppDbContext(options);
         db.Database.EnsureCreated();
         SeedData.Initialize(db);
-        return (connection, new LookupService(new CategoryRepository(db), new PriorityRepository(db)));
+        return (connection, new LookupService(new CategoryRepository(db), new PriorityRepository(db), new UserRepository(db)));
     }
 
     [Fact]
@@ -42,5 +42,16 @@ public class LookupServiceTests
 
         Assert.Equal(new[] { 1, 2, 3, 4 }, priorities.Select(p => p.Level).ToArray());
         Assert.Equal(72, priorities[0].DeadlineHours);
+    }
+
+    [Fact]
+    public async Task GetSupportStaff_ReturnsOnlySupportPeopleSortedByName()
+    {
+        var (connection, service) = CreateService();
+        using var _ = connection;
+
+        var staff = await service.GetSupportStaffAsync();
+
+        Assert.Equal(new[] { "Jaan Tamm", "Mari Maasikas" }, staff.Select(u => u.DisplayName).ToArray());
     }
 }

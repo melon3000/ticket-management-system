@@ -2,9 +2,9 @@ import { useEffect } from 'react'
 import { AuthProvider } from './auth/AuthProvider'
 import { useAuth } from './auth/AuthContext'
 import { Layout } from './components/Layout'
-import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { TicketsPage } from './pages/TicketsPage'
 import { navigate, usePath } from './router/hashRouter'
 
 function Pages() {
@@ -21,7 +21,7 @@ function Pages() {
 
   return (
     <Layout>
-      <HomePage />
+      <TicketsPage />
     </Layout>
   )
 }
