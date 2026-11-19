@@ -3,9 +3,11 @@ import { AuthProvider } from './auth/AuthProvider'
 import { useAuth } from './auth/AuthContext'
 import { Layout } from './components/Layout'
 import { LoginPage } from './pages/LoginPage'
+import { NewTicketPage } from './pages/NewTicketPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { TicketPage } from './pages/TicketPage'
 import { TicketsPage } from './pages/TicketsPage'
-import { navigate, usePath } from './router/hashRouter'
+import { matchPath, navigate, usePath } from './router/hashRouter'
 
 function Pages() {
   const { user } = useAuth()
@@ -19,11 +21,12 @@ function Pages() {
 
   if (!user) return path === '/register' ? <RegisterPage /> : <LoginPage />
 
-  return (
-    <Layout>
-      <TicketsPage />
-    </Layout>
-  )
+  const ticketRoute = matchPath('/tickets/:id', path)
+  let page = <TicketsPage />
+  if (path === '/tickets/new') page = <NewTicketPage />
+  else if (ticketRoute && /^\d+$/.test(ticketRoute.id)) page = <TicketPage key={ticketRoute.id} id={Number(ticketRoute.id)} />
+
+  return <Layout>{page}</Layout>
 }
 
 function App() {

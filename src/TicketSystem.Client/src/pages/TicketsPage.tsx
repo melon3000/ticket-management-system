@@ -7,6 +7,7 @@ import { PriorityBadge, StatusBadge } from '../components/Badges'
 import { FormError } from '../components/FormError'
 import { formatDateTime, sortLabels, statusLabels } from '../components/labels'
 import { Pager } from '../components/Pager'
+import { useNow } from '../components/useNow'
 
 const defaultQuery: TicketQuery = { sortBy: 'CreatedAt', descending: true, page: 1, pageSize: 20 }
 const searchDelayMs = 350
@@ -23,13 +24,7 @@ export function TicketsPage() {
   const [searchText, setSearchText] = useState('')
   const { lookups, error: lookupError } = useLookups(isStaff)
   const { data, error, loading } = useTickets(query)
-
-  // The current time moves on once a minute, so a ticket turns red when its deadline passes.
-  const [now, setNow] = useState(() => Date.now())
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 60_000)
-    return () => clearInterval(timer)
-  }, [])
+  const now = useNow()
 
   // The search starts a moment after the last key press, not on every letter.
   useEffect(() => {
@@ -63,6 +58,9 @@ export function TicketsPage() {
     <section>
       <div className="page-head">
         <h1>{isStaff ? 'Tiketid' : 'Minu tiketid'}</h1>
+        <a href="#/tickets/new" className="button">
+          Uus tiket
+        </a>
       </div>
 
       <div className="card filters">
@@ -194,7 +192,9 @@ export function TicketsPage() {
                     <tr key={ticket.id}>
                       <td className="muted">{ticket.id}</td>
                       <td className="title-cell">
-                        {ticket.title}
+                        <a href={`#/tickets/${ticket.id}`} className="ticket-link">
+                          {ticket.title}
+                        </a>
                         {ticket.isOverdue && <span className="badge overdue">Eskaleeritud</span>}
                       </td>
                       <td>
