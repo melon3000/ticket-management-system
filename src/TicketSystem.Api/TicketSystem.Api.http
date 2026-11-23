@@ -1,12 +1,25 @@
+# Requests for every endpoint of the Web API.
+# Works with the REST Client extension of VS Code and with Visual Studio.
+# Start the API first (dotnet run in this folder), then send the requests from the top to the bottom.
+# The seeded accounts all use the password Password123!
+
 @host = http://localhost:5119
 
-### All categories (public)
+###############################################################################
+# Reference data (public)
+###############################################################################
+
+### All categories
 GET {{host}}/api/categories
 Accept: application/json
 
-### All priorities (public)
+### All priorities
 GET {{host}}/api/priorities
 Accept: application/json
+
+###############################################################################
+# Accounts
+###############################################################################
 
 ### Register a new account (role User)
 POST {{host}}/api/auth/register
@@ -18,8 +31,48 @@ Content-Type: application/json
   "password": "Password123!"
 }
 
-### Login as the seeded administrator
-# @name login
+### Login: user Kati Kask
+# @name loginKati
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "kati.kask@ticketsystem.local",
+  "password": "Password123!"
+}
+
+### Login: user Toomas Mets
+# @name loginToomas
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "toomas.mets@ticketsystem.local",
+  "password": "Password123!"
+}
+
+### Login: support person Mari Maasikas
+# @name loginMari
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "mari.maasikas@ticketsystem.local",
+  "password": "Password123!"
+}
+
+### Login: support person Jaan Tamm
+# @name loginJaan
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "jaan.tamm@ticketsystem.local",
+  "password": "Password123!"
+}
+
+### Login: administrator
+# @name loginAdmin
 POST {{host}}/api/auth/login
 Content-Type: application/json
 
@@ -28,14 +81,36 @@ Content-Type: application/json
   "password": "Password123!"
 }
 
-### Current user (needs the token from the login request above)
-@token = {{login.response.body.$.token}}
-GET {{host}}/api/auth/me
-Authorization: Bearer {{token}}
+### Login: service account of the Worker Service
+# @name loginService
+POST {{host}}/api/auth/login
+Content-Type: application/json
 
-### Create a ticket (needs the token from the login request above)
+{
+  "email": "service@ticketsystem.local",
+  "password": "Password123!"
+}
+
+# The tokens of the logins above. Send the login requests first.
+@katiToken = {{loginKati.response.body.$.token}}
+@toomasToken = {{loginToomas.response.body.$.token}}
+@mariToken = {{loginMari.response.body.$.token}}
+@jaanToken = {{loginJaan.response.body.$.token}}
+@adminToken = {{loginAdmin.response.body.$.token}}
+@serviceToken = {{loginService.response.body.$.token}}
+
+### Current user (Kati)
+GET {{host}}/api/auth/me
+Authorization: Bearer {{katiToken}}
+
+###############################################################################
+# Tickets
+###############################################################################
+
+### Create a ticket (Kati). The state is New, the deadline comes from the priority
+# @name createTicket
 POST {{host}}/api/tickets
-Authorization: Bearer {{token}}
+Authorization: Bearer {{katiToken}}
 Content-Type: application/json
 
 {
@@ -45,52 +120,127 @@ Content-Type: application/json
   "priorityId": 2
 }
 
-### Get a ticket
-GET {{host}}/api/tickets/1
-Authorization: Bearer {{token}}
+# The id of the ticket created above. The requests below use it.
+@ticketId = {{createTicket.response.body.$.id}}
 
-### List tickets: filter by state, priority and assignee
-GET {{host}}/api/tickets?status=New&priority=3&assignee=
-Authorization: Bearer {{token}}
+### Read a ticket (the author, support or the administrator)
+GET {{host}}/api/tickets/{{ticketId}}
+Authorization: Bearer {{katiToken}}
+
+### Edit a ticket (the author while it is New, or the administrator)
+PUT {{host}}/api/tickets/{{ticketId}}
+Authorization: Bearer {{katiToken}}
+Content-Type: application/json
+
+{
+  "title": "Printer ei tööta (täpsustatud)",
+  "description": "Kolmanda korruse printer ei prindi ja näitab veateadet E-502.",
+  "categoryId": 1,
+  "priorityId": 2
+}
+
+### List tickets: the newest first, 20 per page (a user only sees own tickets)
+GET {{host}}/api/tickets
+Authorization: Bearer {{katiToken}}
+
+### List tickets: filter by state, priority, assignee and category
+GET {{host}}/api/tickets?status=New&priority=3&categoryId=1
+Authorization: Bearer {{mariToken}}
 
 ### List tickets: search, sort by deadline (soonest first) and page
 GET {{host}}/api/tickets?search=printer&sortBy=Deadline&descending=false&page=1&pageSize=10
-Authorization: Bearer {{token}}
+Authorization: Bearer {{mariToken}}
 
-### Take a ticket into work (log in as a support person, for example mari.maasikas@ticketsystem.local)
-POST {{host}}/api/tickets/1/assign
-Authorization: Bearer {{token}}
+### Take a ticket into work (Mari). Only support, only a New ticket without an assignee
+POST {{host}}/api/tickets/{{ticketId}}/assign
+Authorization: Bearer {{mariToken}}
 
-### Change the state of a ticket (assignee or administrator)
-PATCH {{host}}/api/tickets/1/status
-Authorization: Bearer {{token}}
+### List tickets of one support person (the id is from the list of support staff)
+GET {{host}}/api/tickets?status=InProgress&assignee=2
+Authorization: Bearer {{adminToken}}
+
+### Resolve a ticket (the assignee or the administrator)
+PATCH {{host}}/api/tickets/{{ticketId}}/status
+Authorization: Bearer {{mariToken}}
 Content-Type: application/json
 
 {
   "status": "Resolved"
 }
 
-### Change log of a ticket
-GET {{host}}/api/tickets/1/log
-Authorization: Bearer {{token}}
+### Reopen a ticket (the assignee or the administrator)
+PATCH {{host}}/api/tickets/{{ticketId}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
 
-### Add a comment to a ticket
-POST {{host}}/api/tickets/1/comments
-Authorization: Bearer {{token}}
+{
+  "status": "InProgress"
+}
+
+### Change log of a ticket
+GET {{host}}/api/tickets/{{ticketId}}/log
+Authorization: Bearer {{katiToken}}
+
+### Delete a ticket (administrator only)
+DELETE {{host}}/api/tickets/{{ticketId}}
+Authorization: Bearer {{adminToken}}
+
+###############################################################################
+# Comments
+###############################################################################
+
+### Add a comment (Kati, the author of the ticket)
+POST {{host}}/api/tickets/{{ticketId}}/comments
+Authorization: Bearer {{katiToken}}
 Content-Type: application/json
 
 {
   "text": "Tere! Proovisin printerit taaskäivitada, aga viga jäi."
 }
 
-### Comments of a ticket
-GET {{host}}/api/tickets/1/comments
-Authorization: Bearer {{token}}
+### Add a comment (Mari, support)
+POST {{host}}/api/tickets/{{ticketId}}/comments
+Authorization: Bearer {{mariToken}}
+Content-Type: application/json
 
-### Overdue tickets (log in as service@ticketsystem.local, support or administrator)
+{
+  "text": "Tere! Vaatan seda täna. Kas printeril on paberiummistus?"
+}
+
+### Comments of a ticket, oldest first
+GET {{host}}/api/tickets/{{ticketId}}/comments
+Authorization: Bearer {{katiToken}}
+
+###############################################################################
+# Overdue tickets and escalation (used by the Worker Service)
+###############################################################################
+
+### Unresolved tickets whose deadline has passed (service, support or administrator)
 GET {{host}}/api/tickets/overdue
-Authorization: Bearer {{token}}
+Authorization: Bearer {{serviceToken}}
 
-### Escalate a late ticket (service account only)
+### Escalate a late ticket: raises the priority one level (service account only)
+# Answers 409 when the deadline has not passed yet. Put the id of a late ticket from the list above.
 PATCH {{host}}/api/tickets/1/escalate
-Authorization: Bearer {{token}}
+Authorization: Bearer {{serviceToken}}
+
+###############################################################################
+# People and statistics
+###############################################################################
+
+### Support staff for the assignee filter (support or administrator)
+GET {{host}}/api/users/support
+Authorization: Bearer {{mariToken}}
+
+### Average resolution time by category and by support person (administrator only)
+GET {{host}}/api/statistics/resolution-time
+Authorization: Bearer {{adminToken}}
+
+###############################################################################
+# Real-time messages
+###############################################################################
+
+# The WebSocket endpoint cannot be called from a .http file. Open it with the Postman WebSocket request
+# or any WebSocket client (support person or administrator only, the token goes in the query):
+#   ws://localhost:5119/ws/tickets?access_token=<token>
+# The server sends {"type":"TicketCreated","ticket":{...}} and {"type":"TicketUpdated","ticket":{...}}.
