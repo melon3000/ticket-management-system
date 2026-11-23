@@ -1,4 +1,4 @@
-const API_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:5119'
+export const API_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:5119'
 
 /** An error answer of the Web API (RFC 7807 problem details). */
 export class ApiError extends Error {

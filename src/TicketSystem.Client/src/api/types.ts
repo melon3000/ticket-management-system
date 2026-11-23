@@ -98,3 +98,34 @@ export interface TicketInput {
   categoryId: number
   priorityId: number
 }
+
+/** One entry of the change log of a ticket. */
+export interface TicketLogEntry {
+  id: number
+  action: string
+  oldValue: string | null
+  newValue: string | null
+  user: UserSummary
+  createdAt: string
+}
+
+/** Average resolution time of one category or one support person. */
+export interface ResolutionTime {
+  id: number
+  name: string
+  resolvedCount: number
+  averageHours: number | null
+}
+
+export interface ResolutionStatistics {
+  resolvedCount: number
+  averageHours: number | null
+  byCategory: ResolutionTime[]
+  bySupport: ResolutionTime[]
+}
+
+/** A message that the server sends over the WebSocket to the support staff. */
+export interface TicketEvent {
+  type: 'TicketCreated' | 'TicketUpdated'
+  ticket: Ticket
+}
