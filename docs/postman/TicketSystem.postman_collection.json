@@ -1,0 +1,2405 @@
+{
+  "info": {
+    "_postman_id": "ba9c3902-316f-4835-b7f8-fdd0b9688b3f",
+    "name": "Ticket System API",
+    "description": "Requests and tests for every endpoint of the ticket system Web API.\n\nHow to use:\n1. Start the API (dotnet run in src/TicketSystem.Api). The default address is http://localhost:5119; change the variable baseUrl if yours differs.\n2. Run folder \"0. Login\" first. It stores the tokens of the seeded accounts (password Password123!).\n3. Run the folders 1 to 4 in order, or the whole collection with the Collection Runner. Every request checks the answer.\n\nThe WebSocket endpoint /ws/tickets is not part of the collection. Open it in Postman as a new WebSocket request: ws://localhost:5119/ws/tickets?access_token=<token of a support person or the administrator>.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Login (run this folder first)",
+      "description": "Signs in with the seeded accounts and stores their tokens in collection variables. All other requests use these tokens.",
+      "item": [
+        {
+          "name": "Login: Kati Kask (User)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kati.kask@ticketsystem.local\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Signs in as the user Kati Kask and keeps the token in the collection variable tokenKati."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set(\"tokenKati\", body.token);",
+                  "pm.collectionVariables.set(\"katiId\", body.user.id);",
+                  "pm.test(\"Answer has a token and a user\", function () { pm.expect(body.token).to.be.a(\"string\").and.not.empty; pm.expect(body.user.email).to.eql(\"kati.kask@ticketsystem.local\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login: Toomas Mets (User)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"toomas.mets@ticketsystem.local\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Signs in as the user Toomas Mets and keeps the token in the collection variable tokenToomas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set(\"tokenToomas\", body.token);",
+                  "pm.collectionVariables.set(\"toomasId\", body.user.id);",
+                  "pm.test(\"Answer has a token and a user\", function () { pm.expect(body.token).to.be.a(\"string\").and.not.empty; pm.expect(body.user.email).to.eql(\"toomas.mets@ticketsystem.local\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login: Mari Maasikas (Support)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"mari.maasikas@ticketsystem.local\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Signs in as the support person Mari Maasikas and keeps the token in the collection variable tokenMari."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set(\"tokenMari\", body.token);",
+                  "pm.collectionVariables.set(\"marId\", body.user.id);",
+                  "pm.test(\"Answer has a token and a user\", function () { pm.expect(body.token).to.be.a(\"string\").and.not.empty; pm.expect(body.user.email).to.eql(\"mari.maasikas@ticketsystem.local\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login: Jaan Tamm (Support)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jaan.tamm@ticketsystem.local\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Signs in as the support person Jaan Tamm and keeps the token in the collection variable tokenJaan."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set(\"tokenJaan\", body.token);",
+                  "pm.collectionVariables.set(\"jaanId\", body.user.id);",
+                  "pm.test(\"Answer has a token and a user\", function () { pm.expect(body.token).to.be.a(\"string\").and.not.empty; pm.expect(body.user.email).to.eql(\"jaan.tamm@ticketsystem.local\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login: Peeter Admin (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@ticketsystem.local\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Signs in as the administrator and keeps the token in the collection variable tokenAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set(\"tokenAdmin\", body.token);",
+                  "pm.collectionVariables.set(\"adminId\", body.user.id);",
+                  "pm.test(\"Answer has a token and a user\", function () { pm.expect(body.token).to.be.a(\"string\").and.not.empty; pm.expect(body.user.email).to.eql(\"admin@ticketsystem.local\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login: Service Account (Service)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"service@ticketsystem.local\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Signs in as the technical account of the Worker Service and keeps the token in the collection variable tokenService."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set(\"tokenService\", body.token);",
+                  "pm.collectionVariables.set(\"serviceId\", body.user.id);",
+                  "pm.test(\"Answer has a token and a user\", function () { pm.expect(body.token).to.be.a(\"string\").and.not.empty; pm.expect(body.user.email).to.eql(\"service@ticketsystem.local\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register a new account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"uus.kasutaja.{{$timestamp}}@example.com\",\n  \"displayName\": \"Uus Kasutaja\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Creates an account with the role User and returns a token. The email contains a timestamp, so the request can be repeated."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"New account has the role User\", function () { pm.expect(pm.response.json().user.role).to.eql(\"User\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Current user (Kati)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Returns the signed-in user."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"It is Kati Kask\", function () { pm.expect(pm.response.json().displayName).to.eql(\"Kati Kask\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Reference data",
+      "item": [
+        {
+          "name": "Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Public. All ticket categories sorted by name."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"There are categories\", function () { pm.expect(pm.response.json()).to.be.an(\"array\").that.is.not.empty; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Priorities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/priorities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "priorities"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Public. Priorities from the lowest to the highest level with the hours to the deadline."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Levels go up\", function () { const levels = pm.response.json().map(p => p.level); pm.expect(levels).to.eql([...levels].sort((a, b) => a - b)); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Support staff (Mari)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/support",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "support"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenMari}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Support staff and administrator only. The people for the assignee filter. Contains no email addresses."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Mari Maasikas is listed and no email is shown\", function () { const people = pm.response.json(); pm.expect(people.map(p => p.displayName)).to.include(\"Mari Maasikas\"); pm.expect(people[0]).to.not.have.property(\"email\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Ticket lifecycle (in order)",
+      "description": "Follows one ticket from creation to resolution. Run the requests in order, or run the whole folder with the Collection Runner.",
+      "item": [
+        {
+          "name": "1. Create a ticket (Kati)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Printer ei tööta\",\n  \"description\": \"Kolmanda korruse printer ei prindi ja näitab veateadet E-502.\",\n  \"categoryId\": 1,\n  \"priorityId\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "A user creates a ticket. The state is New and the deadline comes from the priority."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const ticket = pm.response.json();",
+                  "pm.collectionVariables.set(\"ticketId\", ticket.id);",
+                  "pm.test(\"Ticket is New and has a deadline\", function () { pm.expect(ticket.status).to.eql(\"New\"); pm.expect(new Date(ticket.deadline).getTime()).to.be.above(new Date(ticket.createdAt).getTime()); });",
+                  "pm.test(\"Priority and category are kept\", function () { pm.expect(ticket.priority.id).to.eql(2); pm.expect(ticket.category.id).to.eql(1); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Read the ticket (Kati)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"It is the created ticket\", function () { pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get(\"ticketId\"))); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. My tickets (Kati)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "An ordinary user only sees own tickets. The newest ticket comes first by default."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const page = pm.response.json();",
+                  "pm.test(\"The new ticket is first\", function () { pm.expect(page.items[0].id).to.eql(Number(pm.collectionVariables.get(\"ticketId\"))); });",
+                  "pm.test(\"Page information is present\", function () { pm.expect(page).to.include.keys(\"page\", \"pageSize\", \"totalCount\", \"totalPages\"); });",
+                  "pm.test(\"Every ticket belongs to Kati\", function () { pm.expect(page.items.every(t => t.createdBy.id === Number(pm.collectionVariables.get(\"katiId\")))).to.be.true; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Edit the ticket (Kati)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Printer ei tööta (täpsustatud)\",\n  \"description\": \"Kolmanda korruse printer ei prindi ja näitab veateadet E-502.\",\n  \"categoryId\": 1,\n  \"priorityId\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "The author can edit a ticket while it is New. Changing the priority recalculates the deadline."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Title changed\", function () { pm.expect(pm.response.json().title).to.eql(\"Printer ei tööta (täpsustatud)\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Search new tickets (Mari)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets?status=New&search=Printer&sortBy=Deadline&descending=false&page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "New"
+                },
+                {
+                  "key": "search",
+                  "value": "Printer"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "Deadline"
+                },
+                {
+                  "key": "descending",
+                  "value": "false"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenMari}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Support sees all tickets. Filters: state, text search, sorting by the deadline (soonest first) and paging."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Only new tickets\", function () { pm.expect(pm.response.json().items.every(t => t.status === \"New\")).to.be.true; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Take into work (Mari)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/assign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "assign"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenMari}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Only support can take a ticket, and only when it is New and has no assignee. The state becomes InProgress."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const ticket = pm.response.json();",
+                  "pm.test(\"InProgress with Mari as assignee\", function () { pm.expect(ticket.status).to.eql(\"InProgress\"); pm.expect(ticket.assignee.id).to.eql(Number(pm.collectionVariables.get(\"marId\"))); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7. Take it again (Jaan) - conflict",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/assign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "assign"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJaan}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Another support person cannot take a ticket that is already in work."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Problem details have a detail\", function () { pm.expect(pm.response.json().detail).to.be.a(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "8. Filter by assignee (Mari)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets?status=InProgress&assignee={{marId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "InProgress"
+                },
+                {
+                  "key": "assignee",
+                  "value": "{{marId}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenMari}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Every ticket is Mari's\", function () { pm.expect(pm.response.json().items.every(t => t.assignee && t.assignee.id === Number(pm.collectionVariables.get(\"marId\")))).to.be.true; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9. Comment (Kati)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "comments"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Tere! Proovisin printerit taaskäivitada, aga viga jäi.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Author is Kati\", function () { pm.expect(pm.response.json().author.displayName).to.eql(\"Kati Kask\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10. Comment (Mari)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "comments"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenMari}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Tere! Vaatan seda täna. Kas printeril on paberiummistus?\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11. Comments of the ticket (Kati)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "comments"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Comments come oldest first."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Two comments in order\", function () { const c = pm.response.json(); pm.expect(c.length).to.eql(2); pm.expect(c[0].author.displayName).to.eql(\"Kati Kask\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12. Resolve (Mari)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "status"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenMari}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Resolved\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Only the assignee or an administrator can change the state. InProgress to Resolved sets the resolution time."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Resolved with a resolution time\", function () { const t = pm.response.json(); pm.expect(t.status).to.eql(\"Resolved\"); pm.expect(t.resolvedAt).to.not.be.null; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13. Resolution statistics (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/statistics/resolution-time",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "statistics",
+                "resolution-time"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Administrator only. Average time from creation to resolution, in hours, by category and by support person."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const stats = pm.response.json();",
+                  "pm.test(\"There is at least one resolved ticket\", function () { pm.expect(stats.resolvedCount).to.be.above(0); pm.expect(stats.averageHours).to.be.a(\"number\"); });",
+                  "pm.test(\"Both lists are present\", function () { pm.expect(stats.byCategory).to.be.an(\"array\").that.is.not.empty; pm.expect(stats.bySupport).to.be.an(\"array\").that.is.not.empty; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14. Reopen (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "status"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"InProgress\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Resolved back to InProgress clears the resolution time."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"No resolution time\", function () { const t = pm.response.json(); pm.expect(t.status).to.eql(\"InProgress\"); pm.expect(t.resolvedAt).to.be.null; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15. Change log (Kati)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/log",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "log"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Every change is logged with the old and new value and the user."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Log has the expected actions\", function () { const actions = pm.response.json().map(e => e.action); pm.expect(actions).to.include.members([\"Created\", \"Assigned\", \"StatusChanged\"]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "16. Overdue tickets (Service)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/overdue",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "overdue"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenService}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Used by the Worker Service: unresolved tickets whose deadline has passed."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Only late tickets\", function () { pm.expect(pm.response.json().every(t => t.status !== \"Resolved\" && new Date(t.deadline).getTime() < Date.now())).to.be.true; });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Errors and permissions",
+      "description": "Requests that must be refused. They need the ticket from folder 2.",
+      "item": [
+        {
+          "name": "Login with a wrong password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kati.kask@ticketsystem.local\",\n  \"password\": \"vale-parool\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register an email that is taken",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kati.kask@ticketsystem.local\",\n  \"displayName\": \"Kati Kask\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create without a token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Printer ei tööta\",\n  \"description\": \"Kolmanda korruse printer ei prindi ja näitab veateadet E-502.\",\n  \"categoryId\": 1,\n  \"priorityId\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create with an unknown category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Printer ei tööta\",\n  \"description\": \"Kolmanda korruse printer ei prindi ja näitab veateadet E-502.\",\n  \"categoryId\": 999,\n  \"priorityId\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create with a too short title",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"abc\",\n  \"description\": \"Kolmanda korruse printer ei prindi ja näitab veateadet E-502.\",\n  \"categoryId\": 1,\n  \"priorityId\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Validation errors are listed\", function () { pm.expect(pm.response.json().errors).to.be.an(\"object\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Another user reads the ticket (Toomas)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenToomas}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ordinary users can only read their own tickets."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unknown ticket",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "999999"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Page size above the limit",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets?pageSize=500",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ],
+              "query": [
+                {
+                  "key": "pageSize",
+                  "value": "500"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unknown state in the filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets?status=Foo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Foo"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "User takes a ticket (Kati)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/assign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "assign"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Administrator takes a ticket",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/assign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "assign"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Only the Support role can take tickets."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Status change by another support person (Jaan)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "status"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenJaan}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Resolved\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Back to New",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "status"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"New\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "New is set by the system. A ticket cannot go back to it."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Empty comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "comments"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Other user comments (Toomas)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "comments"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenToomas}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Tere, mina ka!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Statistics as a user (Kati)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/statistics/resolution-time",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "statistics",
+                "resolution-time"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Statistics as support (Mari)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/statistics/resolution-time",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "statistics",
+                "resolution-time"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenMari}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Overdue list as a user (Kati)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/overdue",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "overdue"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenKati}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Escalate a ticket that is not late (Service)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/escalate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "escalate"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenService}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Only the service account can escalate, and only when the deadline has passed."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Escalate as support (Mari)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/escalate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "escalate"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenMari}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Cleanup",
+      "item": [
+        {
+          "name": "Delete the ticket (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Administrator only. Removes the ticket together with its comments and log."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete as support (Mari) - forbidden",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "1"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenMari}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "The deleted ticket is gone",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5119"
+    },
+    {
+      "key": "tokenKati",
+      "value": ""
+    },
+    {
+      "key": "tokenToomas",
+      "value": ""
+    },
+    {
+      "key": "tokenMari",
+      "value": ""
+    },
+    {
+      "key": "tokenJaan",
+      "value": ""
+    },
+    {
+      "key": "tokenAdmin",
+      "value": ""
+    },
+    {
+      "key": "tokenService",
+      "value": ""
+    },
+    {
+      "key": "katiId",
+      "value": ""
+    },
+    {
+      "key": "toomasId",
+      "value": ""
+    },
+    {
+      "key": "marId",
+      "value": ""
+    },
+    {
+      "key": "jaanId",
+      "value": ""
+    },
+    {
+      "key": "adminId",
+      "value": ""
+    },
+    {
+      "key": "serviceId",
+      "value": ""
+    },
+    {
+      "key": "ticketId",
+      "value": ""
+    }
+  ]
+}
