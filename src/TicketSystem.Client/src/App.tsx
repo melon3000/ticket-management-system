@@ -5,8 +5,10 @@ import { Layout } from './components/Layout'
 import { LoginPage } from './pages/LoginPage'
 import { NewTicketPage } from './pages/NewTicketPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { StatisticsPage } from './pages/StatisticsPage'
 import { TicketPage } from './pages/TicketPage'
 import { TicketsPage } from './pages/TicketsPage'
+import { RealtimeProvider } from './realtime/RealtimeProvider'
 import { matchPath, navigate, usePath } from './router/hashRouter'
 
 function Pages() {
@@ -24,6 +26,7 @@ function Pages() {
   const ticketRoute = matchPath('/tickets/:id', path)
   let page = <TicketsPage />
   if (path === '/tickets/new') page = <NewTicketPage />
+  else if (path === '/statistics' && user.role === 'Admin') page = <StatisticsPage />
   else if (ticketRoute && /^\d+$/.test(ticketRoute.id)) page = <TicketPage key={ticketRoute.id} id={Number(ticketRoute.id)} />
 
   return <Layout>{page}</Layout>
@@ -32,7 +35,9 @@ function Pages() {
 function App() {
   return (
     <AuthProvider>
-      <Pages />
+      <RealtimeProvider>
+        <Pages />
+      </RealtimeProvider>
     </AuthProvider>
   )
 }

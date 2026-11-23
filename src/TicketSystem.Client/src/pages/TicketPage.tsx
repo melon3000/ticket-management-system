@@ -5,21 +5,30 @@ import { useLookups } from '../api/useLookups'
 import { useTicket } from '../api/useTicket'
 import { useAuth } from '../auth/AuthContext'
 import { PriorityBadge, StatusBadge } from '../components/Badges'
+import { ChangeLog } from '../components/ChangeLog'
 import { Comments } from '../components/Comments'
 import { FormError } from '../components/FormError'
 import { TicketForm } from '../components/TicketForm'
 import { formatDateTime } from '../components/labels'
 import { useNow } from '../components/useNow'
+import { useRefreshOnFocus } from '../components/useRefreshOnFocus'
+import { useTicketEvents } from '../realtime/useTicketEvents'
 import { navigate } from '../router/hashRouter'
 
 export function TicketPage({ id }: { id: number }) {
   const { user } = useAuth()
-  const { ticket, comments, error, loading, reload } = useTicket(id)
+  const { ticket, comments, log, error, loading, reload } = useTicket(id)
   const { lookups } = useLookups(false)
   const [editing, setEditing] = useState(false)
   const [actionError, setActionError] = useState<unknown>(null)
   const [busy, setBusy] = useState(false)
   const now = useNow()
+
+  // A message about this ticket or a return to the page loads the newest state.
+  useTicketEvents((event) => {
+    if (event.ticket.id === id) reload()
+  })
+  useRefreshOnFocus(reload)
 
   const back = (
     <a href="#/" className="back-link">
@@ -180,6 +189,7 @@ export function TicketPage({ id }: { id: number }) {
       </div>
 
       <Comments ticketId={id} comments={comments} onAdded={reload} />
+      <ChangeLog entries={log} />
     </section>
   )
 }

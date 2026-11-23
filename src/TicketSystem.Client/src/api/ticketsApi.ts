@@ -3,9 +3,11 @@ import type {
   Category,
   PagedResult,
   Priority,
+  ResolutionStatistics,
   Ticket,
   TicketComment,
   TicketInput,
+  TicketLogEntry,
   TicketQuery,
   TicketStatus,
   UserSummary,
@@ -23,6 +25,7 @@ function toQueryString(query: TicketQuery): string {
 export const ticketsApi = {
   list: (query: TicketQuery) => http.get<PagedResult<Ticket>>(`/api/tickets?${toQueryString(query)}`),
   get: (id: number) => http.get<Ticket>(`/api/tickets/${id}`),
+  log: (id: number) => http.get<TicketLogEntry[]>(`/api/tickets/${id}/log`),
   create: (input: TicketInput) => http.post<Ticket>('/api/tickets', input),
   update: (id: number, input: TicketInput) => http.put<Ticket>(`/api/tickets/${id}`, input),
   assign: (id: number) => http.post<Ticket>(`/api/tickets/${id}/assign`),
@@ -39,4 +42,8 @@ export const lookupApi = {
   categories: () => http.get<Category[]>('/api/categories'),
   priorities: () => http.get<Priority[]>('/api/priorities'),
   supportStaff: () => http.get<UserSummary[]>('/api/users/support'),
+}
+
+export const statisticsApi = {
+  resolutionTimes: () => http.get<ResolutionStatistics>('/api/statistics/resolution-time'),
 }

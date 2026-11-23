@@ -8,6 +8,8 @@ import { FormError } from '../components/FormError'
 import { formatDateTime, sortLabels, statusLabels } from '../components/labels'
 import { Pager } from '../components/Pager'
 import { useNow } from '../components/useNow'
+import { useRefreshOnFocus } from '../components/useRefreshOnFocus'
+import { useTicketEvents } from '../realtime/useTicketEvents'
 
 const defaultQuery: TicketQuery = { sortBy: 'CreatedAt', descending: true, page: 1, pageSize: 20 }
 const searchDelayMs = 350
@@ -23,8 +25,12 @@ export function TicketsPage() {
   const [query, setQuery] = useState<TicketQuery>(defaultQuery)
   const [searchText, setSearchText] = useState('')
   const { lookups, error: lookupError } = useLookups(isStaff)
-  const { data, error, loading } = useTickets(query)
+  const { data, error, loading, reload } = useTickets(query)
   const now = useNow()
+
+  // The support staff get a message when a ticket is created or changed. Others refresh when they return.
+  useTicketEvents(reload)
+  useRefreshOnFocus(reload)
 
   // The search starts a moment after the last key press, not on every letter.
   useEffect(() => {
@@ -58,9 +64,14 @@ export function TicketsPage() {
     <section>
       <div className="page-head">
         <h1>{isStaff ? 'Tiketid' : 'Minu tiketid'}</h1>
-        <a href="#/tickets/new" className="button">
-          Uus tiket
-        </a>
+        <div className="head-actions">
+          <button type="button" className="button secondary" onClick={reload} disabled={loading}>
+            Värskenda
+          </button>
+          <a href="#/tickets/new" className="button">
+            Uus tiket
+          </a>
+        </div>
       </div>
 
       <div className="card filters">

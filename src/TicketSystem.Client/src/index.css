@@ -517,3 +517,90 @@ textarea:focus-visible {
   gap: 1rem;
   font-size: 0.9rem;
 }
+
+/* Real-time, change log, statistics */
+.head-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.live::before {
+  content: '';
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.live.on {
+  color: #1d7a46;
+}
+
+.live.on::before {
+  background: #1d7a46;
+}
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.timeline li {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.timeline .time {
+  min-width: 8.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.summary .card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.summary strong {
+  font-size: 1.8rem;
+}
+
+.stats .table-card {
+  margin-bottom: 1rem;
+}
+
+.table-title {
+  margin: 0;
+  padding: 1rem 1.2rem 0.4rem;
+}
+
+.bar-col {
+  width: 35%;
+  min-width: 120px;
+}
+
+.bar {
+  height: 0.7rem;
+  border-radius: 4px;
+  background: var(--accent);
+}
