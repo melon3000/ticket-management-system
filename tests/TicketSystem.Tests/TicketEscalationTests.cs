@@ -30,13 +30,7 @@ public class TicketEscalationTests
     /// <summary>A database with the seeded users and priorities but no tickets.</summary>
     private static Context CreateContext()
     {
-        var connection = new SqliteConnection("DataSource=:memory:");
-        connection.Open();
-        var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options);
-        db.Database.EnsureCreated();
-        SeedData.Initialize(db);
-        db.Tickets.RemoveRange(db.Tickets.ToList());
-        db.SaveChanges();
+        var (connection, db) = TestDatabase.CreateSeeded(withTickets: false);
 
         var clock = new TestClock();
         var service = new TicketService(

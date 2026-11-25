@@ -33,11 +33,7 @@ public class TicketNotificationTests
 
     private static Context CreateContext()
     {
-        var connection = new SqliteConnection("DataSource=:memory:");
-        connection.Open();
-        var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options);
-        db.Database.EnsureCreated();
-        SeedData.Initialize(db);
+        var (connection, db) = TestDatabase.CreateSeeded();
 
         var notifier = new Mock<ITicketNotifier>();
         notifier.Setup(n => n.NotifyAsync(It.IsAny<string>(), It.IsAny<TicketDto>())).Returns(Task.CompletedTask);

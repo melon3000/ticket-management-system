@@ -10,12 +10,7 @@ public class LookupServiceTests
 {
     private static (SqliteConnection Connection, LookupService Service) CreateService()
     {
-        var connection = new SqliteConnection("DataSource=:memory:");
-        connection.Open();
-        var options = new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options;
-        var db = new AppDbContext(options);
-        db.Database.EnsureCreated();
-        SeedData.Initialize(db);
+        var (connection, db) = TestDatabase.CreateSeeded();
         return (connection, new LookupService(new CategoryRepository(db), new PriorityRepository(db), new UserRepository(db)));
     }
 
