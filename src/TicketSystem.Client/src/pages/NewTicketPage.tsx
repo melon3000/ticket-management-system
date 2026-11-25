@@ -8,7 +8,7 @@ export function NewTicketPage() {
   const { lookups, error } = useLookups(false)
 
   return (
-    <section>
+    <section className="narrow-page">
       <a href="#/" className="back-link">
         ← Tiketid
       </a>
