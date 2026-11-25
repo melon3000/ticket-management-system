@@ -27,11 +27,7 @@ public class TicketServiceTests
 
     private static Context CreateContext()
     {
-        var connection = new SqliteConnection("DataSource=:memory:");
-        connection.Open();
-        var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options);
-        db.Database.EnsureCreated();
-        SeedData.Initialize(db);
+        var (connection, db) = TestDatabase.CreateSeeded();
 
         var service = new TicketService(
             new TicketRepository(db), new CategoryRepository(db), new PriorityRepository(db),

@@ -28,11 +28,7 @@ public class CommentServiceTests
 
     private static Context CreateContext()
     {
-        var connection = new SqliteConnection("DataSource=:memory:");
-        connection.Open();
-        var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options);
-        db.Database.EnsureCreated();
-        SeedData.Initialize(db);
+        var (connection, db) = TestDatabase.CreateSeeded();
 
         var tickets = new TicketRepository(db);
         var users = new UserRepository(db);

@@ -25,11 +25,7 @@ public class AuthServiceTests
 
     private static (SqliteConnection Connection, AppDbContext Db, AuthService Service) CreateService()
     {
-        var connection = new SqliteConnection("DataSource=:memory:");
-        connection.Open();
-        var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options);
-        db.Database.EnsureCreated();
-        SeedData.Initialize(db);
+        var (connection, db) = TestDatabase.CreateSeeded();
 
         var service = new AuthService(
             new UserRepository(db),
