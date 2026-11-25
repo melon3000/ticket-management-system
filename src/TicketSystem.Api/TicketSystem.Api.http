@@ -232,6 +232,17 @@ Authorization: Bearer {{serviceToken}}
 GET {{host}}/api/users/support
 Authorization: Bearer {{mariToken}}
 
+### All users (administrator only)
+GET {{host}}/api/users
+Authorization: Bearer {{adminToken}}
+
+### Change the role of a user: User, Support or Admin (administrator only, not for yourself or the Service account)
+PATCH {{host}}/api/users/5/role
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "role": "Support" }
+
 ### Average resolution time by category and by support person (administrator only)
 GET {{host}}/api/statistics/resolution-time
 Authorization: Bearer {{adminToken}}

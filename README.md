@@ -12,6 +12,7 @@ Final project of the courses Programmeerimine and Hajusrakendused (TechnoTLN, to
 - States: New, InProgress, Resolved. Only support staff take a ticket into work; the assignee or an administrator changes the state.
 - Comments on tickets and a change log (created, assigned, state changed, escalated).
 - Filtering by state, priority, category and assignee, free-text search, sorting and paging.
+- Administrator page "Kasutajad": change the role of any user (User, Support, Admin).
 - Average resolution time per category and per support person (administrator).
 - Worker Service: every 15 minutes it asks for overdue tickets and raises the priority of each one by one level.
 - WebSocket `/ws/tickets`: support staff and administrators receive `TicketCreated` and `TicketUpdated` messages.
@@ -116,6 +117,8 @@ All endpoints except the first three groups require the header `Authorization: B
 | GET | `/api/tickets/overdue` | Support, Admin, Service | Unresolved tickets past the deadline |
 | PATCH | `/api/tickets/{id}/escalate` | Service | Raise the priority of a late ticket |
 | GET | `/api/users/support` | Support, Admin | Support staff for the assignee filter |
+| GET | `/api/users` | Admin | All users with email and role |
+| PATCH | `/api/users/{id}/role` | Admin | Change the role (User, Support, Admin) |
 | GET | `/api/statistics/resolution-time` | Admin | Average resolution time by category and by support person |
 | WebSocket | `/ws/tickets?access_token=<token>` | Support, Admin | Real-time `TicketCreated` and `TicketUpdated` messages |
 
@@ -145,11 +148,11 @@ End-to-end check of the API rules. Start the API, then in another window:
 powershell -ExecutionPolicy Bypass -File .\scripts\check-api.ps1
 ```
 
-The script prints PASS or FAIL for every rule (roles, state changes, deadlines, filters, comments, log, statistics, WebSocket) and creates and removes its own ticket. Use it only with a development database.
+The script prints PASS or FAIL for every rule (roles, user management, state changes, deadlines, filters, comments, log, statistics, WebSocket) and creates and removes its own ticket. Use it only with a development database.
 
 ### Postman and .http
 
-- `docs/postman/TicketSystem.postman_collection.json`: import it into Postman and run the folders with the Collection Runner in order, starting with `0. Login`. The folders contain a full ticket lifecycle with tests and a set of error and permission checks.
+- `docs/postman/TicketSystem.postman_collection.json`: import it into Postman and run the folders with the Collection Runner in order, starting with `0. Login`. The folders contain a full ticket lifecycle with tests, a set of error and permission checks and the role management of the administrator.
 - `src/TicketSystem.Api/TicketSystem.Api.http`: the same endpoints for the REST Client extension of VS Code or Visual Studio.
 
 ## Known limitations
@@ -158,6 +161,7 @@ The script prints PASS or FAIL for every rule (roles, state changes, deadlines, 
 - The token is passed in the query string of the WebSocket address because browsers cannot send headers there. The task requires this form.
 - SQLite `LIKE` ignores case only for the letters A-Z, so the search is case-sensitive for letters such as õ, ä, ö and ü.
 - Two support people pressing "take into work" at the same moment on the same ticket is not protected by a concurrency token. The second request may overwrite the first.
+- A role change works after the next login of that user, because the role is stored in the JWT (valid 60 minutes). A support person with unresolved tickets cannot lose the role, and the administrator cannot change their own role or the Service account.
 - Escalation raises the priority but keeps the original deadline.
 - Users get no push messages. They see changes after a reload, when the tab gets focus again or with the refresh button. The WebSocket is for support staff and administrators, as in the task.
 - The client has no automated tests. It is checked with `npm run lint`, `npm run build` and by hand.

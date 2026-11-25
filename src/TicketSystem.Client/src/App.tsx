@@ -9,6 +9,7 @@ import { RegisterPage } from './pages/RegisterPage'
 import { StatisticsPage } from './pages/StatisticsPage'
 import { TicketPage } from './pages/TicketPage'
 import { TicketsPage } from './pages/TicketsPage'
+import { UsersPage } from './pages/UsersPage'
 import { RealtimeProvider } from './realtime/RealtimeProvider'
 import { matchPath, navigate, usePath } from './router/hashRouter'
 
@@ -28,6 +29,7 @@ function Pages() {
   let page = <TicketsPage />
   if (path === '/tickets/new') page = <NewTicketPage />
   else if (path === '/profile') page = <ProfilePage />
+  else if (path === '/users' && user.role === 'Admin') page = <UsersPage />
   else if (path === '/statistics' && user.role === 'Admin') page = <StatisticsPage />
   else if (ticketRoute && /^\d+$/.test(ticketRoute.id)) page = <TicketPage key={ticketRoute.id} id={Number(ticketRoute.id)} />
 
