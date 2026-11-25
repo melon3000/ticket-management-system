@@ -84,6 +84,9 @@ public class TicketRepository(AppDbContext db) : ITicketRepository
             .Include(t => t.Assignee)
             .ToListAsync();
 
+    public Task<bool> HasUnresolvedAssignedAsync(int userId) =>
+        db.Tickets.AnyAsync(t => t.AssigneeId == userId && t.Status != TicketStatus.Resolved);
+
     public async Task AddAsync(Ticket ticket) => await db.Tickets.AddAsync(ticket);
 
     public void Remove(Ticket ticket) => db.Tickets.Remove(ticket);

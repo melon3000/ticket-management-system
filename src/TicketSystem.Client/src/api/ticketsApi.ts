@@ -10,6 +10,8 @@ import type {
   TicketLogEntry,
   TicketQuery,
   TicketStatus,
+  User,
+  UserRole,
   UserSummary,
 } from './types'
 
@@ -46,4 +48,9 @@ export const lookupApi = {
 
 export const statisticsApi = {
   resolutionTimes: () => http.get<ResolutionStatistics>('/api/statistics/resolution-time'),
+}
+
+export const usersApi = {
+  list: () => http.get<User[]>('/api/users'),
+  changeRole: (id: number, role: UserRole) => http.patch<User>(`/api/users/${id}/role`, { role }),
 }

@@ -1010,6 +1010,36 @@ tbody tr:last-child td {
   background: var(--accent);
 }
 
+/* Users page */
+.user-row {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) 11rem;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+}
+
+.role-select {
+  display: block;
+}
+
+.role-select.locked,
+.locked-role {
+  cursor: not-allowed;
+}
+
+.role-select.locked select {
+  pointer-events: none;
+}
+
+.notice {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.8rem;
+  color: var(--ok);
+  background: rgba(76, 195, 138, 0.12);
+  border-radius: var(--radius-sm);
+}
+
 /* Profile */
 .profile-page .card {
   margin-bottom: 1rem;

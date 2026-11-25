@@ -19,6 +19,9 @@ public interface ITicketRepository
     /// </summary>
     Task<List<Ticket>> GetOverdueAsync(DateTime now);
 
+    /// <summary>Tells whether the user is the assignee of a ticket that is not resolved yet.</summary>
+    Task<bool> HasUnresolvedAssignedAsync(int userId);
+
     /// <summary>Returns the creation and resolution time of every ticket that is resolved now.</summary>
     Task<List<ResolvedTicketRow>> GetResolvedAsync();
 

@@ -216,6 +216,31 @@ Check "staff list contains the support person" 1 @($r.Body | Where-Object { $_.d
 Check "staff list has no administrator" 0 @($r.Body | Where-Object { $_.displayName -eq "Peeter Admin" }).Count
 Check "staff list shows no email addresses" 0 @($r.Body | Where-Object { $_.PSObject.Properties.Name -contains "email" }).Count
 
+Write-Host "`n== User management ==" -ForegroundColor Cyan
+Check "user list without a token: 401" 401 (Call "GET" "/api/users").Status
+Check "ordinary user cannot read the user list: 403" 403 (Call "GET" "/api/users" $kati).Status
+Check "support cannot read the user list: 403" 403 (Call "GET" "/api/users" $mari).Status
+$r = Call "GET" "/api/users" $admin
+Check "administrator reads the user list: 200" 200 $r.Status
+Check "user list shows email and role" 0 @($r.Body | Where-Object { -not $_.email -or -not $_.role }).Count
+$toomasId = @($r.Body | Where-Object { $_.email -eq "toomas.mets@ticketsystem.local" })[0].id
+$adminId = @($r.Body | Where-Object { $_.email -eq "admin@ticketsystem.local" })[0].id
+$serviceId = @($r.Body | Where-Object { $_.email -eq "service@ticketsystem.local" })[0].id
+Check "ordinary user cannot change a role: 403" 403 (Call "PATCH" "/api/users/$toomasId/role" $kati @{ role = "Support" }).Status
+Check "support cannot change a role: 403" 403 (Call "PATCH" "/api/users/$toomasId/role" $mari @{ role = "Support" }).Status
+Check "role of an unknown user: 404" 404 (Call "PATCH" "/api/users/999999/role" $admin @{ role = "Support" }).Status
+Check "missing role: 400" 400 (Call "PATCH" "/api/users/$toomasId/role" $admin @{}).Status
+Check "unknown role: 400" 400 (Call "PATCH" "/api/users/$toomasId/role" $admin @{ role = "Boss" }).Status
+Check "the Service role cannot be given: 400" 400 (Call "PATCH" "/api/users/$toomasId/role" $admin @{ role = "Service" }).Status
+Check "administrator cannot change own role: 409" 409 (Call "PATCH" "/api/users/$adminId/role" $admin @{ role = "User" }).Status
+Check "service account role cannot be changed: 409" 409 (Call "PATCH" "/api/users/$serviceId/role" $admin @{ role = "User" }).Status
+$r = Call "PATCH" "/api/users/$toomasId/role" $admin @{ role = "Support" }
+Check "administrator gives the Support role: 200" 200 $r.Status
+Check "answer shows the new role" "Support" $r.Body.role
+$r = Call "PATCH" "/api/users/$toomasId/role" $admin @{ role = "User" }
+Check "administrator takes the role back: 200" 200 $r.Status
+Check "role is User again" "User" $r.Body.role
+
 Write-Host "`n== Editing and deleting ==" -ForegroundColor Cyan
 Check "author cannot edit a ticket in work: 403" 403 (Call "PUT" "/api/tickets/$id" $kati $new).Status
 Check "user cannot delete: 403" 403 (Call "DELETE" "/api/tickets/$id" $kati).Status

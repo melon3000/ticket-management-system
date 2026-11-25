@@ -15,6 +15,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: '/', label: 'Tiketid', roles: ['User', 'Support', 'Admin'] },
   { to: '/statistics', label: 'Statistika', roles: ['Admin'] },
+  { to: '/users', label: 'Kasutajad', roles: ['Admin'] },
   { to: '/profile', label: 'Profiil', roles: ['User', 'Support', 'Admin'] },
 ]
 

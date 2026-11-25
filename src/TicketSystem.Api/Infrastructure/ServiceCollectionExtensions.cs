@@ -30,6 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IStatisticsService, StatisticsService>();
+        services.AddScoped<IUserAdminService, UserAdminService>();
         services.AddSingleton(TimeProvider.System);
         services.AddSingleton<WebSocketConnections>();
         services.AddSingleton<ITicketNotifier, TicketNotifier>();
