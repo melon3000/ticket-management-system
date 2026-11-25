@@ -89,107 +89,115 @@ export function TicketPage({ id }: { id: number }) {
     <section className="ticket-page">
       {back}
 
-      <div className="card">
-        {editing && lookups ? (
-          <>
-            <h1>Muuda tiketit #{ticket.id}</h1>
-            <TicketForm
-              categories={lookups.categories}
-              priorities={lookups.priorities}
-              initial={{
-                title: ticket.title,
-                description: ticket.description,
-                categoryId: ticket.category.id,
-                priorityId: ticket.priority.id,
-              }}
-              submitLabel="Salvesta"
-              onSubmit={async (input) => {
-                await ticketsApi.update(id, input)
-                setEditing(false)
-                reload()
-              }}
-              onCancel={() => setEditing(false)}
-            />
-          </>
-        ) : (
-          <>
-            <div className="ticket-head">
-              <h1>
-                #{ticket.id} {ticket.title}
-              </h1>
-              <div className="ticket-badges">
-                <StatusBadge status={ticket.status} />
-                <PriorityBadge priority={ticket.priority} />
-                {ticket.isOverdue && <span className="badge overdue">Eskaleeritud</span>}
-              </div>
+      <div className="ticket-layout">
+        <div className="ticket-main">
+          <div className="card">
+            {editing && lookups ? (
+              <>
+                <h1>Muuda tiketit #{ticket.id}</h1>
+                <TicketForm
+                  categories={lookups.categories}
+                  priorities={lookups.priorities}
+                  initial={{
+                    title: ticket.title,
+                    description: ticket.description,
+                    categoryId: ticket.category.id,
+                    priorityId: ticket.priority.id,
+                  }}
+                  submitLabel="Salvesta"
+                  onSubmit={async (input) => {
+                    await ticketsApi.update(id, input)
+                    setEditing(false)
+                    reload()
+                  }}
+                  onCancel={() => setEditing(false)}
+                />
+              </>
+            ) : (
+              <>
+                <div className="ticket-head">
+                  <h1>
+                    #{ticket.id} {ticket.title}
+                  </h1>
+                  <div className="ticket-badges">
+                    <StatusBadge status={ticket.status} />
+                    <PriorityBadge priority={ticket.priority} />
+                    {ticket.isOverdue && <span className="badge overdue">Eskaleeritud</span>}
+                  </div>
+                </div>
+
+
+                <h2>Kirjeldus</h2>
+                <p className="description">{ticket.description}</p>
+
+                <FormError error={actionError} />
+                <FormError error={error} />
+
+                <div className="form-actions">
+                  {canTake && (
+                    <button type="button" className="button" disabled={busy} onClick={() => act(() => ticketsApi.assign(id))}>
+                      Võta töösse
+                    </button>
+                  )}
+                  {canChangeStatus && (
+                    <button
+                      type="button"
+                      className="button"
+                      disabled={busy}
+                      onClick={() => act(() => ticketsApi.changeStatus(id, nextStatus))}
+                    >
+                      {nextStatus === 'Resolved' ? 'Märgi lahendatuks' : 'Ava uuesti'}
+                    </button>
+                  )}
+                  {canEdit && (
+                    <button type="button" className="button secondary" disabled={busy} onClick={() => setEditing(true)}>
+                      Muuda
+                    </button>
+                  )}
+                  {isAdmin && (
+                    <button type="button" className="button danger" disabled={busy} onClick={remove}>
+                      Kustuta
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+
+          <Comments ticketId={id} comments={comments} onAdded={reload} />
+          <ChangeLog entries={log} />
+        </div>
+
+        <aside className="card ticket-aside">
+          <h2>Üksikasjad</h2>
+          <dl className="meta">
+            <div>
+              <dt>Kategooria</dt>
+              <dd>{ticket.category.name}</dd>
             </div>
-
-            <dl className="meta">
-              <div>
-                <dt>Kategooria</dt>
-                <dd>{ticket.category.name}</dd>
-              </div>
-              <div>
-                <dt>Looja</dt>
-                <dd>{ticket.createdBy.displayName}</dd>
-              </div>
-              <div>
-                <dt>Tugiisik</dt>
-                <dd>{ticket.assignee?.displayName ?? '—'}</dd>
-              </div>
-              <div>
-                <dt>Loodud</dt>
-                <dd>{formatDateTime(ticket.createdAt)}</dd>
-              </div>
-              <div>
-                <dt>Tähtaeg</dt>
-                <dd className={late ? 'late' : undefined}>{formatDateTime(ticket.deadline)}</dd>
-              </div>
-              <div>
-                <dt>Lahendatud</dt>
-                <dd>{ticket.resolvedAt ? formatDateTime(ticket.resolvedAt) : '—'}</dd>
-              </div>
-            </dl>
-
-            <h2>Kirjeldus</h2>
-            <p className="description">{ticket.description}</p>
-
-            <FormError error={actionError} />
-            <FormError error={error} />
-
-            <div className="form-actions">
-              {canTake && (
-                <button type="button" className="button" disabled={busy} onClick={() => act(() => ticketsApi.assign(id))}>
-                  Võta töösse
-                </button>
-              )}
-              {canChangeStatus && (
-                <button
-                  type="button"
-                  className="button"
-                  disabled={busy}
-                  onClick={() => act(() => ticketsApi.changeStatus(id, nextStatus))}
-                >
-                  {nextStatus === 'Resolved' ? 'Märgi lahendatuks' : 'Ava uuesti'}
-                </button>
-              )}
-              {canEdit && (
-                <button type="button" className="button secondary" disabled={busy} onClick={() => setEditing(true)}>
-                  Muuda
-                </button>
-              )}
-              {isAdmin && (
-                <button type="button" className="button danger" disabled={busy} onClick={remove}>
-                  Kustuta
-                </button>
-              )}
+            <div>
+              <dt>Looja</dt>
+              <dd>{ticket.createdBy.displayName}</dd>
             </div>
-          </>
-        )}
+            <div>
+              <dt>Tugiisik</dt>
+              <dd>{ticket.assignee?.displayName ?? '—'}</dd>
+            </div>
+            <div>
+              <dt>Loodud</dt>
+              <dd>{formatDateTime(ticket.createdAt)}</dd>
+            </div>
+            <div>
+              <dt>Tähtaeg</dt>
+              <dd className={late ? 'late' : undefined}>{formatDateTime(ticket.deadline)}</dd>
+            </div>
+            <div>
+              <dt>Lahendatud</dt>
+              <dd>{ticket.resolvedAt ? formatDateTime(ticket.resolvedAt) : '—'}</dd>
+            </div>
+          </dl>
+        </aside>
       </div>
-
-      <Comments ticketId={id} comments={comments} onAdded={reload} />
-      <ChangeLog entries={log} />
     </section>
   )
 }

@@ -4,6 +4,7 @@ import { useAuth } from './auth/AuthContext'
 import { Layout } from './components/Layout'
 import { LoginPage } from './pages/LoginPage'
 import { NewTicketPage } from './pages/NewTicketPage'
+import { ProfilePage } from './pages/ProfilePage'
 import { RegisterPage } from './pages/RegisterPage'
 import { StatisticsPage } from './pages/StatisticsPage'
 import { TicketPage } from './pages/TicketPage'
@@ -26,6 +27,7 @@ function Pages() {
   const ticketRoute = matchPath('/tickets/:id', path)
   let page = <TicketsPage />
   if (path === '/tickets/new') page = <NewTicketPage />
+  else if (path === '/profile') page = <ProfilePage />
   else if (path === '/statistics' && user.role === 'Admin') page = <StatisticsPage />
   else if (ticketRoute && /^\d+$/.test(ticketRoute.id)) page = <TicketPage key={ticketRoute.id} id={Number(ticketRoute.id)} />
 
